@@ -51,4 +51,4 @@ function App() {
   )
 }
 
-export default AppApp
+export default App
