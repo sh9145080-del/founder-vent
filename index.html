@@ -6,7 +6,14 @@
     <title>Founder's Vent Platform</title>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">Loading...</div>
     <script type="module" src="/src/main.jsx"></script>
+    <script>
+      window.addEventListener('error', function (e) {
+        document.body.innerHTML =
+          '<pre style="white-space:pre-wrap;color:red;padding:20px;font-size:14px;">RESOURCE/SCRIPT ERROR: ' +
+          (e.message || e.target?.src || 'unknown') + '</pre>';
+      }, true);
+    </script>
   </body>
 </html>
