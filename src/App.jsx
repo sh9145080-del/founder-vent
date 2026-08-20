@@ -20,6 +20,12 @@ function App() {
   )
 }
 
+const TEMPLATES = [
+  { id: 'classic', name: 'Classic (সাদা-কালো, সাধারণ)' },
+  { id: 'bold', name: 'Bold (উজ্জ্বল রং, বড় টেক্সট)' },
+  { id: 'minimal', name: 'Minimal (হালকা, প্রফেশনাল)' }
+]
+
 function AdminPanel() {
   const [clientName, setClientName] = useState('')
   const [email, setEmail] = useState('')
@@ -35,6 +41,7 @@ function AdminPanel() {
   const [imageUrl, setImageUrl] = useState('')
   const [price, setPrice] = useState('')
   const [buttonText, setButtonText] = useState('অর্ডার করুন')
+  const [templateStyle, setTemplateStyle] = useState('classic')
   const [pageMessage, setPageMessage] = useState('')
   const [pages, setPages] = useState([])
 
@@ -62,7 +69,7 @@ function AdminPanel() {
     try {
       const res = await fetch('/api/pages', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ client_id: selectedClient, page_name: pageName, page_url_slug: slug, title, description, image_url: imageUrl, price, button_text: buttonText })
+        body: JSON.stringify({ client_id: selectedClient, page_name: pageName, page_url_slug: slug, title, description, image_url: imageUrl, price, button_text: buttonText, template_style: templateStyle })
       })
       const data = await res.json()
       if (data.success) {
@@ -92,6 +99,12 @@ function AdminPanel() {
           <option value="">-- Client বাছাই করো --</option>
           {clients.map(c => <option key={c.client_id} value={c.client_id}>{c.client_name}</option>)}
         </select>
+
+        <label>Template Style:</label>
+        <select value={templateStyle} onChange={(e) => setTemplateStyle(e.target.value)} style={{ display: 'block', margin: '10px 0', padding: '10px', width: '100%' }}>
+          {TEMPLATES.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+        </select>
+
         <input type="text" placeholder="Page Name (internal)" value={pageName} onChange={(e) => setPageName(e.target.value)} style={{ display: 'block', margin: '10px 0', padding: '10px', width: '100%', boxSizing: 'border-box' }} />
         <input type="text" placeholder="URL Slug (e.g. punching-bag)" value={slug} onChange={(e) => setSlug(e.target.value)} style={{ display: 'block', margin: '10px 0', padding: '10px', width: '100%', boxSizing: 'border-box' }} />
         <input type="text" placeholder="Product Title" value={title} onChange={(e) => setTitle(e.target.value)} style={{ display: 'block', margin: '10px 0', padding: '10px', width: '100%', boxSizing: 'border-box' }} />
@@ -254,7 +267,6 @@ function ClientLogin() {
 
 function PublicLandingPage({ slug }) {
   const [page, setPage] = useState(null)
-  const [tracking, setTracking] = useState(null)
   const [notFound, setNotFound] = useState(false)
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
@@ -266,13 +278,8 @@ function PublicLandingPage({ slug }) {
       .then(data => {
         if (data.success) {
           setPage(data.page)
-          setTracking(data.tracking)
-          if (data.tracking && data.tracking.meta_pixel_id) {
-            injectMetaPixel(data.tracking.meta_pixel_id)
-          }
-          if (data.tracking && data.tracking.ga4_id) {
-            injectGA4(data.tracking.ga4_id)
-          }
+          if (data.tracking && data.tracking.meta_pixel_id) injectMetaPixel(data.tracking.meta_pixel_id)
+          if (data.tracking && data.tracking.ga4_id) injectGA4(data.tracking.ga4_id)
         } else setNotFound(true)
       })
       .catch(() => setNotFound(true))
@@ -298,14 +305,8 @@ function PublicLandingPage({ slug }) {
     script1.async = true
     script1.src = `https://www.googletagmanager.com/gtag/js?id=${ga4Id}`
     document.head.appendChild(script1)
-
     const script2 = document.createElement('script')
-    script2.innerHTML = `
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', '${ga4Id}');
-    `
+    script2.innerHTML = `window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', '${ga4Id}');`
     document.head.appendChild(script2)
   }
 
@@ -313,6 +314,7 @@ function PublicLandingPage({ slug }) {
   if (!page) return <div style={{ padding: '40px', textAlign: 'center' }}>Loading...</div>
 
   const content = JSON.parse(page.page_content)
+  const style = content.template_style || 'classic'
 
   const handleOrder = async () => {
     if (!name || !phone) { setMessage('❌ নাম ও ফোন নাম্বার দাও'); return }
@@ -330,6 +332,46 @@ function PublicLandingPage({ slug }) {
         setName(''); setPhone('')
       } else setMessage(`❌ ${data.error}`)
     } catch (err) { setMessage('❌ কিছু ভুল হয়েছে') }
+  }
+
+  if (style === 'bold') {
+    return (
+      <div style={{ fontFamily: 'sans-serif', maxWidth: '500px', margin: '0 auto', background: '#1a1a2e', color: 'white', minHeight: '100vh' }}>
+        {content.image_url && <img src={content.image_url} alt={content.title} style={{ width: '100%' }} />}
+        <div style={{ padding: '25px', textAlign: 'center' }}>
+          <h1 style={{ fontSize: '32px', textTransform: 'uppercase', color: '#ffd700' }}>{content.title}</h1>
+          <p style={{ fontSize: '16px', color: '#ccc' }}>{content.description}</p>
+          <h2 style={{ fontSize: '40px', color: '#ff4757' }}>{content.price}</h2>
+          <div style={{ marginTop: '25px', background: '#16213e', padding: '20px', borderRadius: '10px' }}>
+            <input type="text" placeholder="আপনার নাম" value={name} onChange={(e) => setName(e.target.value)} style={{ display: 'block', margin: '10px auto', padding: '14px', width: '100%', boxSizing: 'border-box', borderRadius: '6px', border: 'none' }} />
+            <input type="text" placeholder="ফোন নাম্বার" value={phone} onChange={(e) => setPhone(e.target.value)} style={{ display: 'block', margin: '10px auto', padding: '14px', width: '100%', boxSizing: 'border-box', borderRadius: '6px', border: 'none' }} />
+            <button onClick={handleOrder} style={{ padding: '16px 30px', width: '100%', background: '#ff4757', color: 'white', border: 'none', borderRadius: '6px', fontSize: '18px', fontWeight: 'bold', textTransform: 'uppercase' }}>
+              {content.button_text || 'অর্ডার করুন'}
+            </button>
+            <p>{message}</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (style === 'minimal') {
+    return (
+      <div style={{ fontFamily: 'sans-serif', maxWidth: '480px', margin: '0 auto', padding: '40px 25px', color: '#333' }}>
+        {content.image_url && <img src={content.image_url} alt={content.title} style={{ width: '100%', borderRadius: '4px', marginBottom: '25px' }} />}
+        <h1 style={{ fontSize: '24px', fontWeight: '400', letterSpacing: '0.5px' }}>{content.title}</h1>
+        <p style={{ fontSize: '14px', color: '#777', lineHeight: '1.6' }}>{content.description}</p>
+        <h2 style={{ fontSize: '22px', fontWeight: '500', marginTop: '15px' }}>{content.price}</h2>
+        <div style={{ marginTop: '30px', borderTop: '1px solid #eee', paddingTop: '25px' }}>
+          <input type="text" placeholder="আপনার নাম" value={name} onChange={(e) => setName(e.target.value)} style={{ display: 'block', margin: '0 0 12px', padding: '12px', width: '100%', boxSizing: 'border-box', border: '1px solid #ddd', borderRadius: '2px' }} />
+          <input type="text" placeholder="ফোন নাম্বার" value={phone} onChange={(e) => setPhone(e.target.value)} style={{ display: 'block', margin: '0 0 12px', padding: '12px', width: '100%', boxSizing: 'border-box', border: '1px solid #ddd', borderRadius: '2px' }} />
+          <button onClick={handleOrder} style={{ padding: '13px 30px', width: '100%', background: '#333', color: 'white', border: 'none', borderRadius: '2px', fontSize: '14px', letterSpacing: '1px' }}>
+            {content.button_text || 'অর্ডার করুন'}
+          </button>
+          <p style={{ fontSize: '13px' }}>{message}</p>
+        </div>
+      </div>
+    )
   }
 
   return (
