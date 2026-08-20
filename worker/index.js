@@ -62,13 +62,13 @@ async function handleGetClients(env) {
 
 async function handleCreatePage(request, env) {
   try {
-    const { client_id, page_name, page_url_slug, title, description, image_url, price, button_text } = await request.json();
+    const { client_id, page_name, page_url_slug, title, description, image_url, price, button_text, template_style } = await request.json();
     if (!client_id || !page_name || !page_url_slug) return jsonResponse({ error: "সব ফিল্ড পূরণ করতে হবে" }, 400);
     const existing = await env.DB.prepare("SELECT page_id FROM landing_pages WHERE page_url_slug = ?").bind(page_url_slug).first();
     if (existing) return jsonResponse({ error: "এই URL Slug আগে থেকেই আছে, অন্য নাম দাও" }, 400);
     const page_id = "page_" + Date.now();
     const created_at = new Date().toISOString();
-    const page_content = JSON.stringify({ title, description, image_url, price, button_text });
+    const page_content = JSON.stringify({ title, description, image_url, price, button_text, template_style: template_style || 'classic' });
     await env.DB.prepare(
       "INSERT INTO landing_pages (page_id, client_id, page_name, page_url_slug, page_content, status, created_at) VALUES (?, ?, ?, ?, ?, 'published', ?)"
     ).bind(page_id, client_id, page_name, page_url_slug, page_content, created_at).run();
