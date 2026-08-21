@@ -25,6 +25,14 @@ export default {
   }
 };
 
+async function hashPassword(password) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(password);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
 async function handleLogin(request, env) {
   try {
     const { email, password } = await request.json();
@@ -32,7 +40,12 @@ async function handleLogin(request, env) {
     const result = await env.DB.prepare(
       "SELECT client_id, client_name, email, password_hash FROM clients WHERE email = ?"
     ).bind(email).first();
-    if (!result || result.password_hash !== password) return jsonResponse({ error: "Invalid email or password" }, 401);
+    if (!result) return jsonResponse({ error: "Invalid email or password" }, 401);
+
+    const hashedInput = await hashPassword(password);
+    const isMatch = hashedInput === result.password_hash || password === result.password_hash;
+    if (!isMatch) return jsonResponse({ error: "Invalid email or password" }, 401);
+
     return jsonResponse({ success: true, client: { client_id: result.client_id, client_name: result.client_name, email: result.email } });
   } catch (err) {
     return jsonResponse({ error: "Server error", details: err.message }, 500);
@@ -47,8 +60,9 @@ async function handleCreateClient(request, env) {
     if (existing) return jsonResponse({ error: "এই ইমেইল আগে থেকেই আছে" }, 400);
     const client_id = "client_" + Date.now();
     const created_at = new Date().toISOString();
+    const hashedPassword = await hashPassword(password);
     await env.DB.prepare("INSERT INTO clients (client_id, client_name, email, password_hash, created_at) VALUES (?, ?, ?, ?, ?)")
-      .bind(client_id, client_name, email, password, created_at).run();
+      .bind(client_id, client_name, email, hashedPassword, created_at).run();
     return jsonResponse({ success: true, client_id });
   } catch (err) {
     return jsonResponse({ error: "Server error", details: err.message }, 500);
