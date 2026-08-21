@@ -1,37 +1,46 @@
 import React, { useState } from "react";
+import ClientManager from "./ClientManager";
 
 export default function AdminPanel() {
-  const [activeMenu, setActiveMenu] = useState("dashboard");
+  const [activePage, setActivePage] = useState("dashboard");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const menuItems = [
     {
       id: "dashboard",
       label: "Dashboard",
-      icon: "▦",
+      icon: "⌂",
+    },
+    {
+      id: "clients",
+      label: "Clients",
+      icon: "♙",
+    },
+    {
+      id: "landing-pages",
+      label: "Landing Pages",
+      icon: "▣",
     },
     {
       id: "templates",
       label: "Templates",
-      icon: "◫",
+      icon: "▤",
     },
     {
-      id: "product",
-      label: "Product",
+      id: "orders",
+      label: "Orders",
       icon: "□",
+      badge: 28,
     },
     {
-      id: "reviews",
-      label: "Reviews",
-      icon: "★",
+      id: "edit-requests",
+      label: "Edit Requests",
+      icon: "✎",
+      badge: 6,
     },
     {
-      id: "delivery",
-      label: "Delivery",
-      icon: "⌁",
-    },
-    {
-      id: "payment",
-      label: "Payment",
+      id: "payments",
+      label: "Payments",
       icon: "৳",
     },
     {
@@ -41,839 +50,854 @@ export default function AdminPanel() {
     },
   ];
 
+  const pageTitles = {
+    dashboard: "Dashboard",
+    clients: "Clients",
+    "landing-pages": "Landing Pages",
+    templates: "Templates",
+    orders: "Orders",
+    "edit-requests": "Edit Requests",
+    payments: "Payments",
+    settings: "Settings",
+  };
+
+  const navigate = (page) => {
+    setActivePage(page);
+    setSidebarOpen(false);
+  };
+
+  const renderPage = () => {
+    switch (activePage) {
+      case "clients":
+        return <ClientManager />;
+
+      case "dashboard":
+        return (
+          <PlaceholderPage
+            title="Main Dashboard"
+            description="Your complete business overview will appear here."
+            icon="⌂"
+          />
+        );
+
+      case "landing-pages":
+        return (
+          <PlaceholderPage
+            title="Landing Pages"
+            description="Manage every client's landing page from one place."
+            icon="▣"
+          />
+        );
+
+      case "templates":
+        return (
+          <PlaceholderPage
+            title="Templates"
+            description="Template management will be connected here."
+            icon="▤"
+          />
+        );
+
+      case "orders":
+        return (
+          <PlaceholderPage
+            title="All Orders"
+            description="Orders from all client landing pages will appear here."
+            icon="□"
+          />
+        );
+
+      case "edit-requests":
+        return (
+          <PlaceholderPage
+            title="Edit Requests"
+            description="Client edit requests will be managed here."
+            icon="✎"
+          />
+        );
+
+      case "payments":
+        return (
+          <PlaceholderPage
+            title="Payments"
+            description="Payment and transaction management will be connected here."
+            icon="৳"
+          />
+        );
+
+      case "settings":
+        return (
+          <PlaceholderPage
+            title="Main Settings"
+            description="Your platform settings will be available here."
+            icon="⚙"
+          />
+        );
+
+      default:
+        return null;
+    }
+  };
+
   return (
-    <div className="admin-page">
-      <style>{adminStyles}</style>
+    <div className="main-admin">
+
+      <style>{styles}</style>
+
+      {/* MOBILE OVERLAY */}
+
+      {sidebarOpen && (
+        <div
+          className="ma-overlay"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
 
       {/* SIDEBAR */}
 
-      <aside className="admin-sidebar">
-        <div className="admin-logo">
-          <div className="admin-logo-mark">
-            L
+      <aside
+        className={`ma-sidebar ${
+          sidebarOpen ? "ma-sidebar-open" : ""
+        }`}
+      >
+
+        {/* BRAND */}
+
+        <div className="ma-brand">
+
+          <div className="ma-brand-logo">
+            LP
           </div>
 
           <div>
-            <strong>Landing Admin</strong>
-            <span>Control Panel</span>
+            <strong>
+              LandingPro
+            </strong>
+
+            <span>
+              Main Admin
+            </span>
           </div>
+
+          <button
+            className="ma-mobile-close"
+            onClick={() =>
+              setSidebarOpen(false)
+            }
+          >
+            ×
+          </button>
+
         </div>
 
-        <nav className="admin-nav">
-          <p className="admin-nav-title">
+        {/* ADMIN PROFILE */}
+
+        <div className="ma-admin-card">
+
+          <div className="ma-admin-avatar">
+            A
+          </div>
+
+          <div className="ma-admin-info">
+
+            <strong>
+              Super Admin
+            </strong>
+
+            <span>
+              Full Access
+            </span>
+
+          </div>
+
+          <span className="ma-online">
+            ●
+          </span>
+
+        </div>
+
+        {/* NAVIGATION */}
+
+        <nav className="ma-nav">
+
+          <span className="ma-nav-title">
             MANAGEMENT
-          </p>
+          </span>
 
           {menuItems.map((item) => (
+
             <button
               key={item.id}
-              className={
-                activeMenu === item.id
-                  ? "admin-nav-item active"
-                  : "admin-nav-item"
-              }
+              className={`ma-nav-item ${
+                activePage === item.id
+                  ? "active"
+                  : ""
+              }`}
               onClick={() =>
-                setActiveMenu(item.id)
+                navigate(item.id)
               }
             >
-              <span className="admin-nav-icon">
+
+              <span className="ma-nav-icon">
                 {item.icon}
               </span>
 
-              <span>{item.label}</span>
+              <span className="ma-nav-label">
+                {item.label}
+              </span>
+
+              {item.badge && (
+                <span className="ma-nav-badge">
+                  {item.badge}
+                </span>
+              )}
+
             </button>
+
           ))}
+
         </nav>
 
-        <div className="admin-sidebar-bottom">
-          <div className="admin-user">
-            <div className="admin-avatar">
-              A
-            </div>
+        {/* SIDEBAR BOTTOM */}
+
+        <div className="ma-sidebar-bottom">
+
+          <div className="ma-system-status">
+
+            <span className="ma-system-dot">
+              ●
+            </span>
 
             <div>
-              <strong>Administrator</strong>
-              <span>Admin Access</span>
+              <strong>
+                System Online
+              </strong>
+
+              <span>
+                All services operational
+              </span>
             </div>
+
           </div>
 
-          <button className="admin-logout">
+          <button
+            className="ma-logout"
+            onClick={() =>
+              alert(
+                "Logout system will be connected later."
+              )
+            }
+          >
+            <span>
+              ⇥
+            </span>
+
             Logout
           </button>
+
         </div>
+
       </aside>
 
       {/* MAIN */}
 
-      <main className="admin-main">
-        <header className="admin-header">
-          <div>
-            <span className="admin-breadcrumb">
-              ADMIN PANEL
-            </span>
+      <main className="ma-main">
 
-            <h1>
-              {menuItems.find(
-                (item) =>
-                  item.id === activeMenu
-              )?.label || "Dashboard"}
-            </h1>
-          </div>
+        {/* TOPBAR */}
 
-          <div className="admin-header-actions">
-            <span className="admin-status">
-              <i></i>
-              System Online
-            </span>
+        <header className="ma-topbar">
 
-            <button className="admin-view-button">
-              View Landing Page ↗
+          <div className="ma-top-left">
+
+            <button
+              className="ma-menu-button"
+              onClick={() =>
+                setSidebarOpen(true)
+              }
+            >
+              ☰
             </button>
+
+            <div className="ma-breadcrumb">
+
+              <span>
+                Main Admin
+              </span>
+
+              <b>
+                /
+              </b>
+
+              <strong>
+                {pageTitles[activePage]}
+              </strong>
+
+            </div>
+
           </div>
+
+          <div className="ma-top-right">
+
+            <button
+              className="ma-site-button"
+              onClick={() =>
+                alert(
+                  "Main website preview will be connected later."
+                )
+              }
+            >
+              <span>
+                ◉
+              </span>
+
+              View Website
+            </button>
+
+            <button
+              className="ma-notification"
+              onClick={() =>
+                alert(
+                  "Notifications will be connected later."
+                )
+              }
+            >
+              ♧
+
+              <i />
+            </button>
+
+            <button
+              className="ma-profile"
+              onClick={() =>
+                navigate("settings")
+              }
+            >
+
+              <span className="ma-profile-avatar">
+                A
+              </span>
+
+              <span className="ma-profile-info">
+
+                <strong>
+                  Super Admin
+                </strong>
+
+                <small>
+                  Administrator
+                </small>
+
+              </span>
+
+              <span className="ma-profile-arrow">
+                ▾
+              </span>
+
+            </button>
+
+          </div>
+
         </header>
 
-        {/* DASHBOARD */}
+        {/* PAGE */}
 
-        {activeMenu === "dashboard" && (
-          <section className="admin-content">
-            <div className="admin-welcome">
-              <div>
-                <span>
-                  WELCOME BACK
-                </span>
+        <div className="ma-content">
+          {renderPage()}
+        </div>
 
-                <h2>
-                  Manage your landing page
-                  <br />
-                  from one place.
-                </h2>
-
-                <p>
-                  এখানে আপনার landing page-এর
-                  সব গুরুত্বপূর্ণ তথ্য
-                  নিয়ন্ত্রণ করতে পারবেন।
-                </p>
-              </div>
-
-              <div className="admin-welcome-icon">
-                ✦
-              </div>
-            </div>
-
-            <div className="admin-stat-grid">
-              <div className="admin-stat-card">
-                <span>
-                  ACTIVE TEMPLATE
-                </span>
-
-                <strong>
-                  Template 1
-                </strong>
-
-                <small>
-                  Currently selected
-                </small>
-              </div>
-
-              <div className="admin-stat-card">
-                <span>
-                  PRODUCT
-                </span>
-
-                <strong>
-                  Your Product
-                </strong>
-
-                <small>
-                  Product information
-                </small>
-              </div>
-
-              <div className="admin-stat-card">
-                <span>
-                  REVIEWS
-                </span>
-
-                <strong>
-                  0
-                </strong>
-
-                <small>
-                  Customer reviews
-                </small>
-              </div>
-
-              <div className="admin-stat-card">
-                <span>
-                  ORDERS
-                </span>
-
-                <strong>
-                  0
-                </strong>
-
-                <small>
-                  Total orders
-                </small>
-              </div>
-            </div>
-
-            <div className="admin-section-grid">
-              <div className="admin-panel-card">
-                <div className="admin-card-header">
-                  <div>
-                    <span>
-                      QUICK ACTIONS
-                    </span>
-
-                    <h3>
-                      Manage your page
-                    </h3>
-                  </div>
-                </div>
-
-                <div className="admin-quick-grid">
-                  <button
-                    onClick={() =>
-                      setActiveMenu(
-                        "templates"
-                      )
-                    }
-                  >
-                    <b>◫</b>
-                    <strong>
-                      Change Template
-                    </strong>
-                    <span>
-                      Select a design
-                    </span>
-                  </button>
-
-                  <button
-                    onClick={() =>
-                      setActiveMenu(
-                        "product"
-                      )
-                    }
-                  >
-                    <b>□</b>
-                    <strong>
-                      Edit Product
-                    </strong>
-                    <span>
-                      Name, price & images
-                    </span>
-                  </button>
-
-                  <button
-                    onClick={() =>
-                      setActiveMenu(
-                        "reviews"
-                      )
-                    }
-                  >
-                    <b>★</b>
-                    <strong>
-                      Manage Reviews
-                    </strong>
-                    <span>
-                      Add or edit reviews
-                    </span>
-                  </button>
-
-                  <button
-                    onClick={() =>
-                      setActiveMenu(
-                        "payment"
-                      )
-                    }
-                  >
-                    <b>৳</b>
-                    <strong>
-                      Payment Settings
-                    </strong>
-                    <span>
-                      bKash, Nagad & Rocket
-                    </span>
-                  </button>
-                </div>
-              </div>
-
-              <div className="admin-panel-card">
-                <div className="admin-card-header">
-                  <div>
-                    <span>
-                      SYSTEM
-                    </span>
-
-                    <h3>
-                      Status
-                    </h3>
-                  </div>
-                </div>
-
-                <div className="admin-system-list">
-                  <div>
-                    <span>
-                      Landing Page
-                    </span>
-
-                    <strong className="online">
-                      ● Online
-                    </strong>
-                  </div>
-
-                  <div>
-                    <span>
-                      Templates
-                    </span>
-
-                    <strong className="online">
-                      ● Connected
-                    </strong>
-                  </div>
-
-                  <div>
-                    <span>
-                      Order System
-                    </span>
-
-                    <strong className="pending">
-                      ● Setup Pending
-                    </strong>
-                  </div>
-
-                  <div>
-                    <span>
-                      Payment System
-                    </span>
-
-                    <strong className="pending">
-                      ● Setup Pending
-                    </strong>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
-        )}
-
-        {/* OTHER SECTIONS */}
-
-        {activeMenu !== "dashboard" && (
-          <section className="admin-placeholder">
-            <div className="admin-placeholder-icon">
-              {menuItems.find(
-                (item) =>
-                  item.id === activeMenu
-              )?.icon}
-            </div>
-
-            <h2>
-              {
-                menuItems.find(
-                  (item) =>
-                    item.id === activeMenu
-                )?.label
-              }
-            </h2>
-
-            <p>
-              এই section-এর actual
-              functionality আমরা পরের
-              ধাপে তৈরি করব।
-            </p>
-          </section>
-        )}
       </main>
+
     </div>
   );
 }
 
-const adminStyles = `
-.admin-page {
+function PlaceholderPage({
+  title,
+  description,
+  icon,
+}) {
+  return (
+    <div className="ma-placeholder">
+
+      <div className="ma-placeholder-icon">
+        {icon}
+      </div>
+
+      <h2>
+        {title}
+      </h2>
+
+      <p>
+        {description}
+      </p>
+
+      <span>
+        This section is ready for development.
+      </span>
+
+    </div>
+  );
+}
+
+const styles = `
+.main-admin {
   min-height: 100vh;
+  display: flex;
   background: #f5f7fb;
   color: #111827;
   font-family: Inter, Arial, sans-serif;
-  display: flex;
 }
 
-.admin-page * {
+.main-admin * {
   box-sizing: border-box;
 }
 
-.admin-sidebar {
-  width: 250px;
-  min-height: 100vh;
-  background: #111827;
-  color: white;
-  padding: 24px 15px;
-  display: flex;
-  flex-direction: column;
+/* SIDEBAR */
+
+.ma-sidebar {
+  width: 245px;
+  height: 100vh;
   position: fixed;
   left: 0;
   top: 0;
-  bottom: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  padding: 18px 13px;
+  border-right: 1px solid #e5e7eb;
+  background: white;
 }
 
-.admin-logo {
+.ma-brand {
+  min-height: 42px;
   display: flex;
   align-items: center;
-  gap: 11px;
-  padding: 5px 10px 28px;
+  gap: 9px;
+  padding: 0 5px;
 }
 
-.admin-logo-mark {
-  width: 36px;
-  height: 36px;
+.ma-brand-logo {
+  width: 31px;
+  height: 31px;
   display: grid;
   place-items: center;
-  border-radius: 9px;
-  background: #2563eb;
+  border-radius: 7px;
+  background: #111827;
+  color: white;
+  font-size: 8px;
   font-weight: 900;
-  font-size: 18px;
 }
 
-.admin-logo strong {
+.ma-brand strong {
   display: block;
-  font-size: 14px;
+  font-size: 12px;
 }
 
-.admin-logo span {
+.ma-brand span {
   display: block;
-  margin-top: 3px;
+  margin-top: 2px;
   color: #9ca3af;
-  font-size: 10px;
+  font-size: 7px;
 }
 
-.admin-nav-title {
-  margin: 0 10px 9px;
+.ma-mobile-close {
+  display: none;
+  margin-left: auto;
+  border: 0;
+  background: transparent;
   color: #6b7280;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+/* ADMIN CARD */
+
+.ma-admin-card {
+  margin: 18px 0;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid #eef0f2;
+  border-radius: 8px;
+  background: #fafbfc;
+}
+
+.ma-admin-avatar {
+  width: 29px;
+  height: 29px;
+  display: grid;
+  place-items: center;
+  border-radius: 7px;
+  background: #111827;
+  color: white;
   font-size: 9px;
+  font-weight: 900;
+}
+
+.ma-admin-info {
+  flex: 1;
+}
+
+.ma-admin-info strong {
+  display: block;
+  font-size: 8px;
+}
+
+.ma-admin-info span {
+  display: block;
+  margin-top: 2px;
+  color: #2563eb;
+  font-size: 7px;
+}
+
+.ma-online {
+  color: #16a34a;
+  font-size: 7px;
+}
+
+/* NAV */
+
+.ma-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.ma-nav-title {
+  margin: 5px 9px 7px;
+  color: #b0b6c0;
+  font-size: 7px;
   font-weight: 900;
   letter-spacing: .13em;
 }
 
-.admin-nav {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.admin-nav-item {
+.ma-nav-item {
   width: 100%;
-  padding: 11px 12px;
-  border: 0;
-  border-radius: 7px;
-  background: transparent;
-  color: #9ca3af;
-  display: flex;
-  align-items: center;
-  gap: 11px;
-  text-align: left;
-  font-size: 12px;
-  cursor: pointer;
-}
-
-.admin-nav-item:hover {
-  background: #1f2937;
-  color: white;
-}
-
-.admin-nav-item.active {
-  background: #2563eb;
-  color: white;
-}
-
-.admin-nav-icon {
-  width: 18px;
-  text-align: center;
-  font-size: 15px;
-}
-
-.admin-sidebar-bottom {
-  margin-top: auto;
-  padding-top: 20px;
-  border-top: 1px solid #1f2937;
-}
-
-.admin-user {
+  min-height: 36px;
+  padding: 0 10px;
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 5px 7px 13px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: #6b7280;
+  text-align: left;
+  cursor: pointer;
 }
 
-.admin-avatar {
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  background: #374151;
+.ma-nav-item:hover {
+  background: #f5f7fa;
+  color: #111827;
+}
+
+.ma-nav-item.active {
+  background: #111827;
+  color: white;
+}
+
+.ma-nav-icon {
+  width: 16px;
+  text-align: center;
   font-size: 12px;
+}
+
+.ma-nav-label {
+  flex: 1;
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.ma-nav-badge {
+  min-width: 18px;
+  padding: 3px 5px;
+  border-radius: 10px;
+  background: #ef4444;
+  color: white;
+  text-align: center;
+  font-size: 6px;
   font-weight: 900;
 }
 
-.admin-user strong {
-  display: block;
-  font-size: 11px;
+/* SIDEBAR BOTTOM */
+
+.ma-sidebar-bottom {
+  margin-top: auto;
 }
 
-.admin-user span {
-  display: block;
-  margin-top: 3px;
-  color: #6b7280;
-  font-size: 9px;
+.ma-system-status {
+  margin-bottom: 10px;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 7px;
+  background: #f8fafc;
 }
 
-.admin-logout {
+.ma-system-dot {
+  color: #16a34a;
+  font-size: 7px;
+}
+
+.ma-system-status strong {
+  display: block;
+  font-size: 8px;
+}
+
+.ma-system-status span:last-child {
+  display: block;
+  margin-top: 2px;
+  color: #9ca3af;
+  font-size: 7px;
+}
+
+.ma-logout {
   width: 100%;
   padding: 9px;
-  border: 1px solid #374151;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 0;
   border-radius: 6px;
   background: transparent;
   color: #9ca3af;
+  text-align: left;
+  font-size: 8px;
   cursor: pointer;
-  font-size: 11px;
 }
 
-.admin-main {
-  width: calc(100% - 250px);
-  margin-left: 250px;
+/* MAIN */
+
+.ma-main {
+  width: calc(100% - 245px);
   min-height: 100vh;
+  margin-left: 245px;
 }
 
-.admin-header {
-  min-height: 85px;
-  padding: 18px 35px;
-  background: white;
-  border-bottom: 1px solid #e5e7eb;
+/* TOPBAR */
+
+.ma-topbar {
+  height: 64px;
+  padding: 0 25px;
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  align-items: center;
-  gap: 20px;
+  border-bottom: 1px solid #e5e7eb;
+  background: white;
 }
 
-.admin-breadcrumb {
-  color: #2563eb;
-  font-size: 9px;
-  font-weight: 900;
-  letter-spacing: .13em;
-}
-
-.admin-header h1 {
-  margin: 5px 0 0;
-  font-size: 22px;
-  letter-spacing: -.03em;
-}
-
-.admin-header-actions {
+.ma-top-left,
+.ma-top-right {
   display: flex;
   align-items: center;
-  gap: 12px;
 }
 
-.admin-status {
+.ma-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #9ca3af;
+  font-size: 8px;
+}
+
+.ma-breadcrumb b {
+  color: #d1d5db;
+}
+
+.ma-breadcrumb strong {
+  color: #374151;
+}
+
+.ma-menu-button {
+  display: none;
+  margin-right: 8px;
+  border: 0;
+  background: transparent;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.ma-top-right {
+  gap: 9px;
+}
+
+.ma-site-button {
+  padding: 8px 10px;
   display: flex;
   align-items: center;
   gap: 6px;
-  color: #6b7280;
-  font-size: 10px;
-}
-
-.admin-status i {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #16a34a;
-}
-
-.admin-view-button {
-  padding: 9px 13px;
   border: 1px solid #e5e7eb;
   border-radius: 6px;
   background: white;
-  font-size: 10px;
+  color: #374151;
+  font-size: 8px;
   font-weight: 800;
   cursor: pointer;
 }
 
-.admin-content {
-  padding: 30px 35px 50px;
-}
-
-.admin-welcome {
-  min-height: 190px;
-  padding: 30px;
-  border-radius: 13px;
-  background: #111827;
-  color: white;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  overflow: hidden;
-}
-
-.admin-welcome span {
-  color: #60a5fa;
-  font-size: 9px;
-  font-weight: 900;
-  letter-spacing: .15em;
-}
-
-.admin-welcome h2 {
-  margin: 10px 0;
-  font-size: clamp(25px, 3vw, 38px);
-  line-height: 1.05;
-  letter-spacing: -.04em;
-}
-
-.admin-welcome p {
-  margin: 0;
-  color: #9ca3af;
-  font-size: 12px;
-}
-
-.admin-welcome-icon {
-  width: 130px;
-  height: 130px;
-  border: 1px solid #374151;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  color: #60a5fa;
-  font-size: 55px;
-}
-
-.admin-stat-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 14px;
-  margin-top: 18px;
-}
-
-.admin-stat-card {
-  padding: 20px;
-  background: white;
+.ma-notification {
+  width: 31px;
+  height: 31px;
+  position: relative;
   border: 1px solid #e5e7eb;
-  border-radius: 10px;
-}
-
-.admin-stat-card span {
-  color: #9ca3af;
-  font-size: 8px;
-  font-weight: 900;
-  letter-spacing: .12em;
-}
-
-.admin-stat-card strong {
-  display: block;
-  margin: 8px 0 4px;
-  font-size: 20px;
-}
-
-.admin-stat-card small {
-  color: #9ca3af;
-  font-size: 9px;
-}
-
-.admin-section-grid {
-  display: grid;
-  grid-template-columns: 1.4fr .8fr;
-  gap: 18px;
-  margin-top: 18px;
-}
-
-.admin-panel-card {
-  padding: 23px;
+  border-radius: 6px;
   background: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 10px;
-}
-
-.admin-card-header span {
-  color: #2563eb;
-  font-size: 8px;
-  font-weight: 900;
-  letter-spacing: .12em;
-}
-
-.admin-card-header h3 {
-  margin: 6px 0 20px;
-  font-size: 18px;
-}
-
-.admin-quick-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-
-.admin-quick-grid button {
-  padding: 16px;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  background: white;
-  text-align: left;
+  color: #6b7280;
   cursor: pointer;
 }
 
-.admin-quick-grid button:hover {
-  border-color: #2563eb;
+.ma-notification i {
+  width: 5px;
+  height: 5px;
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  border-radius: 50%;
+  background: #ef4444;
 }
 
-.admin-quick-grid b {
-  display: block;
-  margin-bottom: 10px;
-  color: #2563eb;
-  font-size: 19px;
-}
-
-.admin-quick-grid strong {
-  display: block;
-  font-size: 11px;
-}
-
-.admin-quick-grid span {
-  display: block;
-  margin-top: 4px;
-  color: #9ca3af;
-  font-size: 9px;
-}
-
-.admin-system-list {
+.ma-profile {
+  padding: 3px 5px;
   display: flex;
-  flex-direction: column;
-}
-
-.admin-system-list div {
-  padding: 13px 0;
-  border-bottom: 1px solid #f0f1f3;
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
-  font-size: 10px;
-}
-
-.admin-system-list div:last-child {
-  border-bottom: 0;
-}
-
-.online {
-  color: #16a34a;
-}
-
-.pending {
-  color: #d97706;
-}
-
-.admin-placeholder {
-  min-height: calc(100vh - 85px);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
   align-items: center;
+  gap: 7px;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.ma-profile-avatar {
+  width: 29px;
+  height: 29px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #111827;
+  color: white;
+  font-size: 9px;
+  font-weight: 900;
+}
+
+.ma-profile-info {
+  text-align: left;
+}
+
+.ma-profile-info strong {
+  display: block;
+  font-size: 8px;
+}
+
+.ma-profile-info small {
+  display: block;
+  margin-top: 2px;
+  color: #9ca3af;
+  font-size: 7px;
+}
+
+.ma-profile-arrow {
+  color: #9ca3af;
+  font-size: 8px;
+}
+
+/* CONTENT */
+
+.ma-content {
+  min-height: calc(100vh - 64px);
+}
+
+/* PLACEHOLDER */
+
+.ma-placeholder {
+  min-height: 500px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   padding: 30px;
   text-align: center;
 }
 
-.admin-placeholder-icon {
-  width: 70px;
-  height: 70px;
+.ma-placeholder-icon {
+  width: 60px;
+  height: 60px;
+  margin-bottom: 15px;
   display: grid;
   place-items: center;
-  border-radius: 16px;
-  background: #dbeafe;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  background: white;
   color: #2563eb;
-  font-size: 28px;
+  font-size: 24px;
 }
 
-.admin-placeholder h2 {
-  margin: 18px 0 7px;
-  font-size: 25px;
-}
-
-.admin-placeholder p {
+.ma-placeholder h2 {
   margin: 0;
+  font-size: 20px;
+}
+
+.ma-placeholder p {
+  max-width: 420px;
+  margin: 8px 0;
+  color: #6b7280;
+  font-size: 10px;
+}
+
+.ma-placeholder span {
   color: #9ca3af;
-  font-size: 12px;
+  font-size: 8px;
 }
 
-@media (max-width: 900px) {
-  .admin-sidebar {
-    width: 210px;
+/* MOBILE */
+
+@media (max-width: 800px) {
+
+  .ma-sidebar {
+    transform: translateX(-100%);
+    transition: transform .2s ease;
+    box-shadow: 15px 0 40px rgba(0,0,0,.08);
   }
 
-  .admin-main {
-    width: calc(100% - 210px);
-    margin-left: 210px;
+  .ma-sidebar-open {
+    transform: translateX(0);
   }
 
-  .admin-stat-grid {
-    grid-template-columns: 1fr 1fr;
+  .ma-mobile-close {
+    display: block;
   }
 
-  .admin-section-grid {
-    grid-template-columns: 1fr;
+  .ma-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 90;
+    background: rgba(17,24,39,.35);
+  }
+
+  .ma-main {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .ma-menu-button {
+    display: block;
+  }
+
+  .ma-profile-info,
+  .ma-profile-arrow {
+    display: none;
   }
 }
 
-@media (max-width: 650px) {
-  .admin-sidebar {
-    width: 65px;
-    padding: 15px 8px;
+@media (max-width: 520px) {
+
+  .ma-topbar {
+    padding: 0 15px;
   }
 
-  .admin-logo {
-    justify-content: center;
-    padding: 5px 0 25px;
-  }
-
-  .admin-logo > div:last-child,
-  .admin-nav-title,
-  .admin-nav-item > span:last-child,
-  .admin-user > div:last-child,
-  .admin-logout {
+  .ma-site-button {
     display: none;
   }
 
-  .admin-nav-item {
-    justify-content: center;
-  }
-
-  .admin-main {
-    width: calc(100% - 65px);
-    margin-left: 65px;
-  }
-
-  .admin-header {
-    padding: 15px 18px;
-  }
-
-  .admin-header-actions {
-    display: none;
-  }
-
-  .admin-content {
-    padding: 18px;
-  }
-
-  .admin-stat-grid {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .admin-welcome {
-    padding: 23px;
-  }
-
-  .admin-welcome-icon {
-    display: none;
-  }
-
-  .admin-quick-grid {
-    grid-template-columns: 1fr;
-  }
 }
 `;
