@@ -1,122 +1,145 @@
 import React, { useState } from "react";
+import ClientDetails from "./ClientDetails";
 
 export default function ClientManager() {
-  const [showCreate, setShowCreate] = useState(false);
+  const [selectedClient, setSelectedClient] =
+    useState(null);
+
+  const [search, setSearch] =
+    useState("");
+
+  const [statusFilter, setStatusFilter] =
+    useState("All");
+
+  const [showAddClient, setShowAddClient] =
+    useState(false);
 
   const [clients, setClients] = useState([
     {
-      id: "CL-1001",
-      name: "Rahman Electronics",
-      owner: "Abdullah Rahman",
-      phone: "01700-000000",
-      email: "rahman@example.com",
-      plan: "Professional",
+      id: "CL-001",
+      name: "Kevion",
+      owner: "Md. Dilower Hossain",
+      phone: "+880 1700-000000",
+      email: "hello@kevion.com",
+      plan: "Premium",
       status: "Active",
       landingPage: "Published",
-      template: "Template 1",
-      requests: 2,
-      orders: 34,
-      created: "18 Aug 2026",
+      created: "15 Aug 2026",
+      orders: "124",
     },
     {
-      id: "CL-1002",
-      name: "Nila Fashion",
-      owner: "Nila Akter",
-      phone: "01800-000000",
-      email: "nila@example.com",
-      plan: "Basic",
+      id: "CL-002",
+      name: "Smart Gadgets BD",
+      owner: "Rahim Ahmed",
+      phone: "+880 1800-000000",
+      email: "smartgadgets@example.com",
+      plan: "Business",
       status: "Active",
       landingPage: "Draft",
-      template: "Template 3",
-      requests: 1,
-      orders: 12,
-      created: "15 Aug 2026",
+      created: "12 Aug 2026",
+      orders: "87",
     },
     {
-      id: "CL-1003",
-      name: "Smart Gadget BD",
-      owner: "Sakib Hasan",
-      phone: "01900-000000",
-      email: "sakib@example.com",
-      plan: "Professional",
+      id: "CL-003",
+      name: "Baby World",
+      owner: "Sadia Rahman",
+      phone: "+880 1900-000000",
+      email: "babyworld@example.com",
+      plan: "Starter",
+      status: "Active",
+      landingPage: "Published",
+      created: "08 Aug 2026",
+      orders: "51",
+    },
+    {
+      id: "CL-004",
+      name: "Tech Corner",
+      owner: "Arif Khan",
+      phone: "+880 1600-000000",
+      email: "techcorner@example.com",
+      plan: "Business",
       status: "Inactive",
-      landingPage: "Unpublished",
-      template: "Template 5",
-      requests: 4,
-      orders: 0,
-      created: "09 Aug 2026",
+      landingPage: "Draft",
+      created: "02 Aug 2026",
+      orders: "23",
+    },
+    {
+      id: "CL-005",
+      name: "Home Essentials",
+      owner: "Nusrat Jahan",
+      phone: "+880 1500-000000",
+      email: "homeessentials@example.com",
+      plan: "Premium",
+      status: "Active",
+      landingPage: "Published",
+      created: "29 Jul 2026",
+      orders: "76",
     },
   ]);
 
-  const [search, setSearch] = useState("");
+  const filteredClients = clients.filter(
+    (client) => {
+      const matchesSearch =
+        client.name
+          .toLowerCase()
+          .includes(
+            search.toLowerCase()
+          ) ||
+        client.owner
+          .toLowerCase()
+          .includes(
+            search.toLowerCase()
+          ) ||
+        client.id
+          .toLowerCase()
+          .includes(
+            search.toLowerCase()
+          );
 
-  const [form, setForm] = useState({
-    businessName: "",
-    ownerName: "",
-    phone: "",
-    email: "",
-    plan: "Basic",
-  });
+      const matchesStatus =
+        statusFilter === "All" ||
+        client.status === statusFilter;
 
-  const filteredClients = clients.filter((client) => {
-    const value = search.toLowerCase();
+      return (
+        matchesSearch &&
+        matchesStatus
+      );
+    }
+  );
 
-    return (
-      client.name.toLowerCase().includes(value) ||
-      client.owner.toLowerCase().includes(value) ||
-      client.id.toLowerCase().includes(value)
-    );
-  });
-
-  const handleFormChange = (field, value) => {
-    setForm((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
+  const openClient = (client) => {
+    setSelectedClient(client);
   };
 
-  const createClient = () => {
-    if (
-      !form.businessName.trim() ||
-      !form.ownerName.trim() ||
-      !form.phone.trim()
-    ) {
-      alert(
-        "Business name, owner name এবং phone number দিন।"
-      );
-      return;
-    }
+  const closeClient = () => {
+    setSelectedClient(null);
+  };
 
-    const newClient = {
-      id: `CL-${1000 + clients.length + 1}`,
-      name: form.businessName.trim(),
-      owner: form.ownerName.trim(),
-      phone: form.phone.trim(),
-      email: form.email.trim(),
-      plan: form.plan,
-      status: "Active",
-      landingPage: "Not Created",
-      template: "Not Selected",
-      requests: 0,
-      orders: 0,
-      created: "21 Aug 2026",
-    };
-
+  const addClient = (newClient) => {
     setClients((prev) => [
-      newClient,
+      {
+        ...newClient,
+        id: `CL-${String(
+          prev.length + 1
+        ).padStart(3, "0")}`,
+        created: "21 Aug 2026",
+        orders: "0",
+        landingPage: "Draft",
+      },
       ...prev,
     ]);
 
-    setForm({
-      businessName: "",
-      ownerName: "",
-      phone: "",
-      email: "",
-      plan: "Basic",
-    });
-
-    setShowCreate(false);
+    setShowAddClient(false);
   };
+
+  if (selectedClient) {
+    return (
+      <ClientDetails
+        client={selectedClient}
+        onBack={closeClient}
+      />
+    );
+  }
 
   return (
     <div className="client-manager">
@@ -127,28 +150,28 @@ export default function ClientManager() {
       <div className="cm-header">
 
         <div>
-          <span className="cm-kicker">
-            CLIENT MANAGEMENT
+          <span className="cm-eyebrow">
+            MAIN ADMIN
           </span>
 
-          <h2>
+          <h1>
             Clients
-          </h2>
+          </h1>
 
           <p>
-            আপনার সকল client account এখান
-            থেকে manage করুন।
+            Manage your landing page
+            clients and their services.
           </p>
         </div>
 
         <button
-          className="cm-create-button"
+          className="cm-add-button"
           onClick={() =>
-            setShowCreate(true)
+            setShowAddClient(true)
           }
         >
           <span>+</span>
-          Create Client
+          Add New Client
         </button>
 
       </div>
@@ -158,23 +181,24 @@ export default function ClientManager() {
       <div className="cm-stats">
 
         <StatCard
-          label="Total Clients"
+          label="TOTAL CLIENTS"
           value={clients.length}
           icon="◉"
         />
 
         <StatCard
-          label="Active Clients"
+          label="ACTIVE CLIENTS"
           value={
             clients.filter(
-              (c) => c.status === "Active"
+              (c) =>
+                c.status === "Active"
             ).length
           }
           icon="✓"
         />
 
         <StatCard
-          label="Published Pages"
+          label="PUBLISHED PAGES"
           value={
             clients.filter(
               (c) =>
@@ -182,66 +206,127 @@ export default function ClientManager() {
                 "Published"
             ).length
           }
-          icon="◈"
+          icon="▣"
         />
 
         <StatCard
-          label="Pending Requests"
-          value={clients.reduce(
-            (total, client) =>
-              total + client.requests,
-            0
-          )}
+          label="DRAFT PAGES"
+          value={
+            clients.filter(
+              (c) =>
+                c.landingPage ===
+                "Draft"
+            ).length
+          }
           icon="✎"
         />
 
       </div>
 
-      {/* TABLE CARD */}
+      {/* TOOLBAR */}
 
-      <div className="cm-card">
+      <div className="cm-toolbar">
 
-        <div className="cm-toolbar">
+        <div className="cm-search">
+
+          <span>
+            ⌕
+          </span>
+
+          <input
+            type="text"
+            placeholder="Search clients..."
+            value={search}
+            onChange={(e) =>
+              setSearch(
+                e.target.value
+              )
+            }
+          />
+
+        </div>
+
+        <div className="cm-filters">
+
+          {[
+            "All",
+            "Active",
+            "Inactive",
+          ].map((filter) => (
+            <button
+              key={filter}
+              className={
+                statusFilter ===
+                filter
+                  ? "active"
+                  : ""
+              }
+              onClick={() =>
+                setStatusFilter(
+                  filter
+                )
+              }
+            >
+              {filter}
+            </button>
+          ))}
+
+        </div>
+
+      </div>
+
+      {/* CLIENT TABLE */}
+
+      <div className="cm-table-card">
+
+        <div className="cm-table-header">
 
           <div>
-            <h3>
-              All Clients
-            </h3>
-
             <span>
-              Manage your client accounts
+              CLIENT DIRECTORY
             </span>
+
+            <h2>
+              All Clients
+            </h2>
           </div>
 
-          <div className="cm-search">
-            <span>
-              ⌕
-            </span>
-
-            <input
-              value={search}
-              onChange={(e) =>
-                setSearch(e.target.value)
-              }
-              placeholder="Search client..."
-            />
+          <div className="cm-result-count">
+            {filteredClients.length}{" "}
+            clients
           </div>
 
         </div>
 
         <div className="cm-table-wrapper">
 
-          <table className="cm-table">
+          <table>
 
             <thead>
               <tr>
-                <th>CLIENT</th>
-                <th>PLAN</th>
-                <th>LANDING PAGE</th>
-                <th>REQUESTS</th>
-                <th>ORDERS</th>
-                <th>STATUS</th>
-                <th></th>
+                <th>
+                  CLIENT
+                </th>
+
+                <th>
+                  CONTACT
+                </th>
+
+                <th>
+                  PLAN
+                </th>
+
+                <th>
+                  LANDING PAGE
+                </th>
+
+                <th>
+                  STATUS
+                </th>
+
+                <th>
+                  ACTION
+                </th>
               </tr>
             </thead>
 
@@ -249,7 +334,9 @@ export default function ClientManager() {
 
               {filteredClients.map(
                 (client) => (
-                  <tr key={client.id}>
+                  <tr
+                    key={client.id}
+                  >
 
                     <td>
 
@@ -262,17 +349,15 @@ export default function ClientManager() {
                         </div>
 
                         <div>
+
                           <strong>
                             {client.name}
                           </strong>
 
                           <span>
-                            {client.owner}
+                            {client.id}
                           </span>
 
-                          <small>
-                            {client.id}
-                          </small>
                         </div>
 
                       </div>
@@ -280,56 +365,46 @@ export default function ClientManager() {
                     </td>
 
                     <td>
-                      <span className="cm-plan">
-                        {client.plan}
-                      </span>
+
+                      <div className="cm-contact">
+
+                        <strong>
+                          {client.owner}
+                        </strong>
+
+                        <span>
+                          {client.phone}
+                        </span>
+
+                      </div>
+
                     </td>
 
                     <td>
 
-                      <div className="cm-page">
+                      <span className="cm-plan">
+                        {client.plan}
+                      </span>
+
+                    </td>
+
+                    <td>
+
+                      <div className="cm-page-status">
 
                         <span
-                          className={`cm-page-dot ${
-                            client.landingPage
-                              .toLowerCase()
-                              .replace(
-                                " ",
-                                "-"
-                              )
-                          }`}
-                        ></span>
-
-                        <span>
+                          className={
+                            client.landingPage ===
+                            "Published"
+                              ? "published"
+                              : "draft"
+                          }
+                        >
                           {client.landingPage}
                         </span>
 
                       </div>
 
-                      <small className="cm-template">
-                        {client.template}
-                      </small>
-
-                    </td>
-
-                    <td>
-
-                      {client.requests > 0 ? (
-                        <span className="cm-request-count">
-                          {client.requests}
-                        </span>
-                      ) : (
-                        <span className="cm-zero">
-                          0
-                        </span>
-                      )}
-
-                    </td>
-
-                    <td>
-                      <strong className="cm-orders">
-                        {client.orders}
-                      </strong>
                     </td>
 
                     <td>
@@ -347,14 +422,17 @@ export default function ClientManager() {
                     <td>
 
                       <button
-                        className="cm-action"
+                        className="cm-view-button"
                         onClick={() =>
-                          alert(
-                            `Client: ${client.name}\n\nClient details and Landing Page management will be connected here.`
+                          openClient(
+                            client
                           )
                         }
                       >
                         View
+                        <span>
+                          →
+                        </span>
                       </button>
 
                     </td>
@@ -367,17 +445,21 @@ export default function ClientManager() {
 
           </table>
 
-          {filteredClients.length === 0 && (
+          {filteredClients.length ===
+            0 && (
             <div className="cm-empty">
-              <div>⌕</div>
+              <div>
+                ⌕
+              </div>
 
-              <strong>
+              <h3>
                 No clients found
-              </strong>
+              </h3>
 
-              <span>
-                Try another search.
-              </span>
+              <p>
+                Try changing your
+                search or filter.
+              </p>
             </div>
           )}
 
@@ -385,155 +467,24 @@ export default function ClientManager() {
 
       </div>
 
-      {/* CREATE CLIENT MODAL */}
+      {/* ADD CLIENT MODAL */}
 
-      {showCreate && (
-        <div
-          className="cm-modal-overlay"
-          onClick={() =>
-            setShowCreate(false)
+      {showAddClient && (
+        <AddClientModal
+          onClose={() =>
+            setShowAddClient(false)
           }
-        >
-
-          <div
-            className="cm-modal"
-            onClick={(e) =>
-              e.stopPropagation()
-            }
-          >
-
-            <div className="cm-modal-header">
-
-              <div>
-                <span>
-                  NEW CLIENT
-                </span>
-
-                <h3>
-                  Create Client
-                </h3>
-              </div>
-
-              <button
-                onClick={() =>
-                  setShowCreate(false)
-                }
-              >
-                ×
-              </button>
-
-            </div>
-
-            <div className="cm-form">
-
-              <FormField
-                label="Business Name"
-                placeholder="Example: Rahman Electronics"
-                value={form.businessName}
-                onChange={(value) =>
-                  handleFormChange(
-                    "businessName",
-                    value
-                  )
-                }
-              />
-
-              <FormField
-                label="Owner Name"
-                placeholder="Client owner name"
-                value={form.ownerName}
-                onChange={(value) =>
-                  handleFormChange(
-                    "ownerName",
-                    value
-                  )
-                }
-              />
-
-              <FormField
-                label="Phone Number"
-                placeholder="01XXXXXXXXX"
-                value={form.phone}
-                onChange={(value) =>
-                  handleFormChange(
-                    "phone",
-                    value
-                  )
-                }
-              />
-
-              <FormField
-                label="Email"
-                placeholder="client@example.com"
-                value={form.email}
-                onChange={(value) =>
-                  handleFormChange(
-                    "email",
-                    value
-                  )
-                }
-              />
-
-              <div className="cm-field cm-full">
-
-                <label>
-                  Plan
-                </label>
-
-                <select
-                  value={form.plan}
-                  onChange={(e) =>
-                    handleFormChange(
-                      "plan",
-                      e.target.value
-                    )
-                  }
-                >
-                  <option>
-                    Basic
-                  </option>
-
-                  <option>
-                    Professional
-                  </option>
-
-                  <option>
-                    Premium
-                  </option>
-                </select>
-
-              </div>
-
-            </div>
-
-            <div className="cm-modal-footer">
-
-              <button
-                className="cm-cancel"
-                onClick={() =>
-                  setShowCreate(false)
-                }
-              >
-                Cancel
-              </button>
-
-              <button
-                className="cm-save"
-                onClick={createClient}
-              >
-                Create Client
-              </button>
-
-            </div>
-
-          </div>
-
-        </div>
+          onAdd={addClient}
+        />
       )}
 
     </div>
   );
 }
+
+/* =========================
+   STAT CARD
+========================= */
 
 function StatCard({
   label,
@@ -541,13 +492,14 @@ function StatCard({
   icon,
 }) {
   return (
-    <div className="cm-stat">
+    <div className="cm-stat-card">
 
       <div className="cm-stat-icon">
         {icon}
       </div>
 
       <div>
+
         <span>
           {label}
         </span>
@@ -555,41 +507,284 @@ function StatCard({
         <strong>
           {value}
         </strong>
+
       </div>
 
     </div>
   );
 }
 
+/* =========================
+   ADD CLIENT MODAL
+========================= */
+
+function AddClientModal({
+  onClose,
+  onAdd,
+}) {
+  const [form, setForm] =
+    useState({
+      name: "",
+      owner: "",
+      phone: "",
+      email: "",
+      plan: "Starter",
+      status: "Active",
+    });
+
+  const updateField = (
+    field,
+    value
+  ) => {
+    setForm((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    if (
+      !form.name.trim() ||
+      !form.owner.trim() ||
+      !form.phone.trim()
+    ) {
+      alert(
+        "Please fill in the required fields."
+      );
+      return;
+    }
+
+    onAdd(form);
+  };
+
+  return (
+    <div
+      className="cm-modal-overlay"
+      onClick={onClose}
+    >
+
+      <div
+        className="cm-add-modal"
+        onClick={(e) =>
+          e.stopPropagation()
+        }
+      >
+
+        <div className="cm-modal-header">
+
+          <div>
+
+            <span>
+              CLIENT MANAGEMENT
+            </span>
+
+            <h2>
+              Add New Client
+            </h2>
+
+          </div>
+
+          <button
+            onClick={onClose}
+          >
+            ×
+          </button>
+
+        </div>
+
+        <form
+          onSubmit={handleSubmit}
+        >
+
+          <div className="cm-form">
+
+            <FormField
+              label="Business Name"
+              required
+              value={form.name}
+              onChange={(value) =>
+                updateField(
+                  "name",
+                  value
+                )
+              }
+              placeholder="e.g. Kevion"
+            />
+
+            <FormField
+              label="Owner Name"
+              required
+              value={form.owner}
+              onChange={(value) =>
+                updateField(
+                  "owner",
+                  value
+                )
+              }
+              placeholder="Client owner name"
+            />
+
+            <FormField
+              label="Phone Number"
+              required
+              value={form.phone}
+              onChange={(value) =>
+                updateField(
+                  "phone",
+                  value
+                )
+              }
+              placeholder="+880..."
+            />
+
+            <FormField
+              label="Email"
+              value={form.email}
+              onChange={(value) =>
+                updateField(
+                  "email",
+                  value
+                )
+              }
+              placeholder="client@example.com"
+            />
+
+            <div className="cm-field">
+
+              <label>
+                Plan
+              </label>
+
+              <select
+                value={form.plan}
+                onChange={(e) =>
+                  updateField(
+                    "plan",
+                    e.target.value
+                  )
+                }
+              >
+                <option>
+                  Starter
+                </option>
+
+                <option>
+                  Business
+                </option>
+
+                <option>
+                  Premium
+                </option>
+              </select>
+
+            </div>
+
+            <div className="cm-field">
+
+              <label>
+                Account Status
+              </label>
+
+              <select
+                value={form.status}
+                onChange={(e) =>
+                  updateField(
+                    "status",
+                    e.target.value
+                  )
+                }
+              >
+                <option>
+                  Active
+                </option>
+
+                <option>
+                  Inactive
+                </option>
+
+              </select>
+
+            </div>
+
+          </div>
+
+          <div className="cm-modal-footer">
+
+            <button
+              type="button"
+              className="cm-cancel"
+              onClick={onClose}
+            >
+              Cancel
+            </button>
+
+            <button
+              type="submit"
+              className="cm-save"
+            >
+              Create Client
+            </button>
+
+          </div>
+
+        </form>
+
+      </div>
+
+    </div>
+  );
+}
+
+/* =========================
+   FORM FIELD
+========================= */
+
 function FormField({
   label,
-  placeholder,
+  required,
   value,
   onChange,
+  placeholder,
 }) {
   return (
     <div className="cm-field">
 
       <label>
         {label}
+
+        {required && (
+          <span>
+            *
+          </span>
+        )}
       </label>
 
       <input
         value={value}
         onChange={(e) =>
-          onChange(e.target.value)
+          onChange(
+            e.target.value
+          )
         }
-        placeholder={placeholder}
+        placeholder={
+          placeholder
+        }
       />
 
     </div>
   );
 }
 
+/* =========================
+   STYLES
+========================= */
+
 const styles = `
 .client-manager {
   min-height: 100%;
-  padding: 30px;
+  padding: 25px 30px 45px;
   background: #f5f7fb;
   color: #111827;
   font-family: Inter, Arial, sans-serif;
@@ -602,126 +797,107 @@ const styles = `
 /* HEADER */
 
 .cm-header {
-  margin-bottom: 22px;
+  margin-bottom: 20px;
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  gap: 20px;
+  gap: 15px;
 }
 
-.cm-kicker {
+.cm-eyebrow {
   color: #2563eb;
-  font-size: 8px;
+  font-size: 7px;
   font-weight: 900;
-  letter-spacing: .14em;
+  letter-spacing: .13em;
 }
 
-.cm-header h2 {
-  margin: 7px 0 5px;
-  font-size: 28px;
+.cm-header h1 {
+  margin: 5px 0 4px;
+  font-size: 24px;
   letter-spacing: -.04em;
 }
 
 .cm-header p {
   margin: 0;
   color: #6b7280;
-  font-size: 10px;
+  font-size: 8px;
 }
 
-.cm-create-button {
-  padding: 11px 15px;
+.cm-add-button {
+  padding: 10px 13px;
   display: flex;
   align-items: center;
-  gap: 7px;
+  gap: 6px;
   border: 0;
-  border-radius: 7px;
+  border-radius: 6px;
   background: #111827;
   color: white;
-  font-size: 9px;
+  font-size: 8px;
   font-weight: 800;
   cursor: pointer;
 }
 
-.cm-create-button span {
-  font-size: 14px;
+.cm-add-button span {
+  font-size: 13px;
 }
 
 /* STATS */
 
 .cm-stats {
-  margin-bottom: 18px;
+  margin-bottom: 17px;
   display: grid;
   grid-template-columns:
     repeat(4, 1fr);
-  gap: 12px;
+  gap: 9px;
 }
 
-.cm-stat {
-  padding: 15px;
+.cm-stat-card {
+  padding: 13px;
   display: flex;
   align-items: center;
-  gap: 11px;
+  gap: 10px;
   border: 1px solid #e5e7eb;
-  border-radius: 9px;
+  border-radius: 8px;
   background: white;
 }
 
 .cm-stat-icon {
-  width: 35px;
-  height: 35px;
+  width: 31px;
+  height: 31px;
   display: grid;
   place-items: center;
-  border-radius: 8px;
+  border-radius: 7px;
   background: #f3f4f6;
   color: #374151;
-  font-size: 12px;
-  font-weight: 900;
+  font-size: 11px;
 }
 
-.cm-stat span {
+.cm-stat-card span {
   display: block;
   color: #9ca3af;
-  font-size: 7px;
+  font-size: 6px;
+  font-weight: 900;
+  letter-spacing: .08em;
 }
 
-.cm-stat strong {
+.cm-stat-card strong {
   display: block;
   margin-top: 4px;
-  font-size: 18px;
+  font-size: 17px;
 }
 
-/* CARD */
-
-.cm-card {
-  border: 1px solid #e5e7eb;
-  border-radius: 10px;
-  background: white;
-  overflow: hidden;
-}
+/* TOOLBAR */
 
 .cm-toolbar {
-  padding: 16px 18px;
+  margin-bottom: 10px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 15px;
-  border-bottom: 1px solid #eef0f2;
-}
-
-.cm-toolbar h3 {
-  margin: 0;
-  font-size: 13px;
-}
-
-.cm-toolbar > div:first-child span {
-  display: block;
-  margin-top: 4px;
-  color: #9ca3af;
-  font-size: 7px;
+  gap: 10px;
 }
 
 .cm-search {
-  width: 220px;
+  width: 270px;
   height: 32px;
   padding: 0 9px;
   display: flex;
@@ -729,11 +905,12 @@ const styles = `
   gap: 6px;
   border: 1px solid #e5e7eb;
   border-radius: 6px;
+  background: white;
 }
 
 .cm-search span {
   color: #9ca3af;
-  font-size: 13px;
+  font-size: 12px;
 }
 
 .cm-search input {
@@ -742,155 +919,157 @@ const styles = `
   outline: 0;
   color: #374151;
   font-size: 8px;
+  background: transparent;
+}
+
+.cm-search input::placeholder {
+  color: #b0b5bd;
+}
+
+.cm-filters {
+  display: flex;
+  padding: 3px;
+  gap: 2px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  background: white;
+}
+
+.cm-filters button {
+  padding: 6px 9px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: #6b7280;
+  font-size: 7px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.cm-filters button.active {
+  background: #111827;
+  color: white;
 }
 
 /* TABLE */
+
+.cm-table-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 9px;
+  background: white;
+  overflow: hidden;
+}
+
+.cm-table-header {
+  padding: 14px 17px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #eef0f2;
+}
+
+.cm-table-header span {
+  color: #9ca3af;
+  font-size: 6px;
+  font-weight: 900;
+  letter-spacing: .12em;
+}
+
+.cm-table-header h2 {
+  margin: 5px 0 0;
+  font-size: 13px;
+}
+
+.cm-result-count {
+  color: #9ca3af;
+  font-size: 7px;
+}
 
 .cm-table-wrapper {
   overflow-x: auto;
 }
 
-.cm-table {
+.cm-table-wrapper table {
   width: 100%;
-  min-width: 850px;
+  min-width: 750px;
   border-collapse: collapse;
 }
 
-.cm-table th {
-  padding: 10px 15px;
-  border-bottom: 1px solid #eef0f2;
+.cm-table-wrapper th {
+  padding: 9px 14px;
   background: #fafbfc;
   color: #9ca3af;
-  text-align: left;
   font-size: 6px;
   font-weight: 900;
   letter-spacing: .08em;
+  text-align: left;
 }
 
-.cm-table td {
-  padding: 13px 15px;
-  border-bottom: 1px solid #f1f2f4;
+.cm-table-wrapper td {
+  padding: 11px 14px;
+  border-top: 1px solid #f1f2f4;
   vertical-align: middle;
 }
 
-.cm-table tbody tr:hover {
-  background: #fcfcfd;
-}
-
 .cm-client {
-  min-width: 190px;
   display: flex;
   align-items: center;
-  gap: 9px;
+  gap: 8px;
 }
 
 .cm-avatar {
   width: 31px;
   height: 31px;
-  flex: 0 0 31px;
   display: grid;
   place-items: center;
+  flex: 0 0 31px;
   border-radius: 7px;
   background: #111827;
   color: white;
-  font-size: 9px;
+  font-size: 8px;
   font-weight: 900;
 }
 
-.cm-client strong {
+.cm-client strong,
+.cm-contact strong {
   display: block;
   font-size: 8px;
 }
 
-.cm-client span {
-  display: block;
-  margin-top: 2px;
-  color: #6b7280;
-  font-size: 7px;
-}
-
-.cm-client small {
-  display: block;
-  margin-top: 2px;
-  color: #b0b6c0;
-  font-size: 6px;
-}
-
-.cm-plan {
-  padding: 4px 7px;
-  border-radius: 4px;
-  background: #f3f4f6;
-  color: #4b5563;
-  font-size: 6px;
-  font-weight: 800;
-}
-
-.cm-page {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  color: #4b5563;
-  font-size: 7px;
-  font-weight: 700;
-}
-
-.cm-page-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #9ca3af;
-}
-
-.cm-page-dot.published {
-  background: #16a34a;
-}
-
-.cm-page-dot.draft {
-  background: #f59e0b;
-}
-
-.cm-page-dot.unpublished {
-  background: #ef4444;
-}
-
-.cm-page-dot.not-created {
-  background: #9ca3af;
-}
-
-.cm-template {
+.cm-client span,
+.cm-contact span {
   display: block;
   margin-top: 3px;
   color: #9ca3af;
   font-size: 6px;
 }
 
-.cm-request-count {
-  min-width: 20px;
+.cm-plan {
   padding: 4px 6px;
-  display: inline-block;
-  border-radius: 10px;
-  background: #fff7ed;
-  color: #ea580c;
-  text-align: center;
-  font-size: 6px;
-  font-weight: 900;
-}
-
-.cm-zero {
-  color: #c4c8ce;
-  font-size: 7px;
-}
-
-.cm-orders {
+  border-radius: 4px;
+  background: #f3f4f6;
   color: #374151;
-  font-size: 8px;
+  font-size: 6px;
+  font-weight: 800;
 }
 
+.cm-page-status span,
 .cm-status {
-  padding: 4px 7px;
+  display: inline-block;
+  padding: 4px 6px;
   border-radius: 4px;
   font-size: 6px;
   font-weight: 900;
+}
+
+.cm-page-status .published {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.cm-page-status .draft {
+  background: #fef3c7;
+  color: #b45309;
 }
 
 .cm-status.active {
@@ -903,43 +1082,56 @@ const styles = `
   color: #6b7280;
 }
 
-.cm-action {
-  padding: 5px 8px;
+.cm-view-button {
+  padding: 6px 8px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
   border: 1px solid #e5e7eb;
   border-radius: 5px;
   background: white;
-  color: #4b5563;
+  color: #374151;
   font-size: 7px;
   font-weight: 800;
   cursor: pointer;
 }
 
-.cm-action:hover {
-  background: #f9fafb;
+.cm-view-button:hover {
+  border-color: #111827;
+  color: #111827;
+}
+
+.cm-view-button span {
+  font-size: 9px;
 }
 
 /* EMPTY */
 
 .cm-empty {
-  padding: 60px 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  padding: 55px 20px;
+  text-align: center;
+}
+
+.cm-empty > div {
+  width: 40px;
+  height: 40px;
+  margin: auto;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  background: #f3f4f6;
   color: #9ca3af;
+  font-size: 16px;
 }
 
-.cm-empty div {
-  font-size: 25px;
+.cm-empty h3 {
+  margin: 10px 0 4px;
+  font-size: 12px;
 }
 
-.cm-empty strong {
-  margin-top: 8px;
-  color: #374151;
-  font-size: 10px;
-}
-
-.cm-empty span {
-  margin-top: 4px;
+.cm-empty p {
+  margin: 0;
+  color: #9ca3af;
   font-size: 7px;
 }
 
@@ -949,24 +1141,24 @@ const styles = `
   position: fixed;
   inset: 0;
   z-index: 1000;
+  padding: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 20px;
   background: rgba(17,24,39,.45);
 }
 
-.cm-modal {
+.cm-add-modal {
   width: 100%;
-  max-width: 480px;
-  border-radius: 12px;
+  max-width: 560px;
+  border-radius: 11px;
   background: white;
   box-shadow: 0 25px 70px rgba(0,0,0,.18);
   overflow: hidden;
 }
 
 .cm-modal-header {
-  padding: 18px;
+  padding: 17px;
   display: flex;
   justify-content: space-between;
   border-bottom: 1px solid #eef0f2;
@@ -974,12 +1166,12 @@ const styles = `
 
 .cm-modal-header span {
   color: #2563eb;
-  font-size: 7px;
+  font-size: 6px;
   font-weight: 900;
   letter-spacing: .12em;
 }
 
-.cm-modal-header h3 {
+.cm-modal-header h2 {
   margin: 5px 0 0;
   font-size: 15px;
 }
@@ -996,48 +1188,49 @@ const styles = `
 }
 
 .cm-form {
-  padding: 18px;
+  padding: 17px;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 13px;
+  gap: 11px;
 }
 
 .cm-field {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-}
-
-.cm-full {
-  grid-column: 1 / -1;
+  gap: 5px;
 }
 
 .cm-field label {
-  color: #4b5563;
-  font-size: 8px;
+  color: #374151;
+  font-size: 7px;
   font-weight: 800;
+}
+
+.cm-field label span {
+  color: #ef4444;
+  margin-left: 2px;
 }
 
 .cm-field input,
 .cm-field select {
   width: 100%;
-  padding: 10px;
-  border: 1px solid #dfe3e8;
-  border-radius: 6px;
-  outline: 0;
+  height: 32px;
+  padding: 0 9px;
+  border: 1px solid #e5e7eb;
+  border-radius: 5px;
+  outline: none;
   background: white;
-  color: #111827;
-  font-family: inherit;
+  color: #374151;
   font-size: 8px;
 }
 
 .cm-field input:focus,
 .cm-field select:focus {
-  border-color: #93c5fd;
+  border-color: #9ca3af;
 }
 
 .cm-modal-footer {
-  padding: 13px 18px;
+  padding: 12px 17px;
   display: flex;
   justify-content: flex-end;
   gap: 7px;
@@ -1047,7 +1240,7 @@ const styles = `
 
 .cm-cancel,
 .cm-save {
-  padding: 9px 13px;
+  padding: 9px 12px;
   border-radius: 6px;
   font-size: 8px;
   font-weight: 800;
@@ -1069,13 +1262,16 @@ const styles = `
 /* RESPONSIVE */
 
 @media (max-width: 900px) {
+
   .cm-stats {
     grid-template-columns:
       repeat(2, 1fr);
   }
+
 }
 
-@media (max-width: 650px) {
+@media (max-width: 600px) {
+
   .client-manager {
     padding: 18px;
   }
@@ -1085,9 +1281,13 @@ const styles = `
     flex-direction: column;
   }
 
-  .cm-create-button {
+  .cm-add-button {
     width: 100%;
     justify-content: center;
+  }
+
+  .cm-stats {
+    grid-template-columns: 1fr;
   }
 
   .cm-toolbar {
@@ -1099,12 +1299,13 @@ const styles = `
     width: 100%;
   }
 
+  .cm-filters {
+    width: max-content;
+  }
+
   .cm-form {
     grid-template-columns: 1fr;
   }
 
-  .cm-full {
-    grid-column: auto;
-  }
 }
 `;
