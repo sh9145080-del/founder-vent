@@ -41,11 +41,9 @@ async function handleLogin(request, env) {
       "SELECT client_id, client_name, email, password_hash FROM clients WHERE email = ?"
     ).bind(email).first();
     if (!result) return jsonResponse({ error: "Invalid email or password" }, 401);
-
     const hashedInput = await hashPassword(password);
     const isMatch = hashedInput === result.password_hash || password === result.password_hash;
     if (!isMatch) return jsonResponse({ error: "Invalid email or password" }, 401);
-
     return jsonResponse({ success: true, client: { client_id: result.client_id, client_name: result.client_name, email: result.email } });
   } catch (err) {
     return jsonResponse({ error: "Server error", details: err.message }, 500);
@@ -71,7 +69,7 @@ async function handleCreateClient(request, env) {
 
 async function handleGetClients(env) {
   try {
-    const result = await env.DB.prepare("SELECT client_id, client_name, email, domain, created_at FROM clients ORDER BY created_at DESC").all();
+    const result = await env.DB.prepare("SELECT client_id, client_name, email, domain, logo_url, created_at FROM clients ORDER BY created_at DESC").all();
     return jsonResponse({ success: true, clients: result.results });
   } catch (err) {
     return jsonResponse({ error: "Server error", details: err.message }, 500);
@@ -80,13 +78,21 @@ async function handleGetClients(env) {
 
 async function handleCreatePage(request, env) {
   try {
-    const { client_id, page_name, page_url_slug, title, description, image_url, price, button_text, template_style } = await request.json();
+    const {
+      client_id, page_name, page_url_slug, title, description, image_url, price,
+      original_price, button_text, template_style, logo_url, theme_color,
+      rating, review_count, details
+    } = await request.json();
     if (!client_id || !page_name || !page_url_slug) return jsonResponse({ error: "সব ফিল্ড পূরণ করতে হবে" }, 400);
     const existing = await env.DB.prepare("SELECT page_id FROM landing_pages WHERE page_url_slug = ?").bind(page_url_slug).first();
     if (existing) return jsonResponse({ error: "এই URL Slug আগে থেকেই আছে, অন্য নাম দাও" }, 400);
     const page_id = "page_" + Date.now();
     const created_at = new Date().toISOString();
-    const page_content = JSON.stringify({ title, description, image_url, price, button_text, template_style: template_style || 'classic' });
+    const page_content = JSON.stringify({
+      title, description, image_url, price, original_price, button_text,
+      template_style: template_style || 'aurora', logo_url, theme_color: theme_color || '#e74c3c',
+      rating: rating || '5', review_count: review_count || '0', details: details || []
+    });
     await env.DB.prepare(
       "INSERT INTO landing_pages (page_id, client_id, page_name, page_url_slug, page_content, status, created_at) VALUES (?, ?, ?, ?, ?, 'published', ?)"
     ).bind(page_id, client_id, page_name, page_url_slug, page_content, created_at).run();
@@ -124,14 +130,14 @@ async function handleGetPageBySlug(slug, env) {
 
 async function handleCreateOrder(request, env) {
   try {
-    const { client_id, page_id, customer_name, customer_phone, product_name, quantity } = await request.json();
+    const { client_id, page_id, customer_name, customer_phone, customer_address, product_name, quantity } = await request.json();
     if (!client_id || !customer_name || !customer_phone) return jsonResponse({ error: "নাম ও ফোন নাম্বার আবশ্যক" }, 400);
     const order_id = "order_" + Date.now();
     const created_at = new Date().toISOString();
     await env.DB.prepare(
       "INSERT INTO orders (order_id, client_id, page_id, customer_name, customer_phone, product_name, quantity, order_status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', ?)"
     ).bind(order_id, client_id, page_id || null, customer_name, customer_phone, product_name || '', quantity || 1, created_at).run();
-    return jsonResponse({ success: true, order_id });
+    return jsonResponse({ success: true, order_id: order_id.slice(-6).toUpperCase() });
   } catch (err) {
     return jsonResponse({ error: "Server error", details: err.message }, 500);
   }
@@ -234,4 +240,4 @@ async function handleSaveDomain(request, env) {
 
 function jsonResponse(data, status = 200) {
   return new Response(JSON.stringify(data), { status, headers: { "Content-Type": "application/json" } });
-}
+      }
