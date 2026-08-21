@@ -1,51 +1,20 @@
 import React, { useState } from "react";
 import Dashboard from "./Dashboard";
 import OrderManager from "./OrderManager";
+import ProductManager from "./ProductManager";
 
 export default function ClientAdminLayout() {
-  const [activePage, setActivePage] =
-    useState("dashboard");
-
-  const [sidebarOpen, setSidebarOpen] =
-    useState(false);
+  const [activePage, setActivePage] = useState("dashboard");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const menuItems = [
-    {
-      id: "dashboard",
-      label: "Dashboard",
-      icon: "⌂",
-    },
-    {
-      id: "orders",
-      label: "Orders",
-      icon: "▣",
-      badge: 14,
-    },
-    {
-      id: "products",
-      label: "Products",
-      icon: "□",
-    },
-    {
-      id: "reviews",
-      label: "Reviews",
-      icon: "☆",
-    },
-    {
-      id: "payments",
-      label: "Payments",
-      icon: "৳",
-    },
-    {
-      id: "landing",
-      label: "Landing Page",
-      icon: "◈",
-    },
-    {
-      id: "settings",
-      label: "Settings",
-      icon: "⚙",
-    },
+    { id: "dashboard", label: "Dashboard", icon: "⌂" },
+    { id: "orders", label: "Orders", icon: "▣", badge: 14 },
+    { id: "products", label: "Products", icon: "□" },
+    { id: "reviews", label: "Reviews", icon: "☆" },
+    { id: "payments", label: "Payments", icon: "৳" },
+    { id: "landing", label: "Landing Page", icon: "◈" },
+    { id: "settings", label: "Settings", icon: "⚙" },
   ];
 
   const pageTitles = {
@@ -72,13 +41,7 @@ export default function ClientAdminLayout() {
         return <OrderManager />;
 
       case "products":
-        return (
-          <PlaceholderPage
-            title="Products"
-            description="Product management will be connected here."
-            icon="□"
-          />
-        );
+        return <ProductManager />;
 
       case "reviews":
         return (
@@ -125,106 +88,60 @@ export default function ClientAdminLayout() {
     <div className="client-admin-shell">
       <style>{styles}</style>
 
-      {/* MOBILE OVERLAY */}
-
       {sidebarOpen && (
         <div
           className="ca-overlay"
-          onClick={() =>
-            setSidebarOpen(false)
-          }
+          onClick={() => setSidebarOpen(false)}
         />
       )}
 
-      {/* SIDEBAR */}
-
       <aside
         className={`ca-sidebar ${
-          sidebarOpen
-            ? "ca-sidebar-open"
-            : ""
+          sidebarOpen ? "ca-sidebar-open" : ""
         }`}
       >
-
-        {/* BRAND */}
-
         <div className="ca-brand">
-
-          <div className="ca-brand-mark">
-            LP
-          </div>
+          <div className="ca-brand-mark">LP</div>
 
           <div>
-            <strong>
-              LandingPro
-            </strong>
-
-            <span>
-              Client Panel
-            </span>
+            <strong>LandingPro</strong>
+            <span>Client Panel</span>
           </div>
 
           <button
             className="ca-mobile-close"
-            onClick={() =>
-              setSidebarOpen(false)
-            }
+            onClick={() => setSidebarOpen(false)}
           >
             ×
           </button>
-
         </div>
-
-        {/* STORE */}
 
         <div className="ca-store">
-
-          <div className="ca-store-avatar">
-            S
-          </div>
+          <div className="ca-store-avatar">S</div>
 
           <div className="ca-store-info">
-
-            <strong>
-              Store Name
-            </strong>
-
-            <span>
-              Active Store
-            </span>
-
+            <strong>Store Name</strong>
+            <span>Active Store</span>
           </div>
 
-          <span className="ca-store-dot">
-            ●
-          </span>
-
+          <span className="ca-store-dot">●</span>
         </div>
 
-        {/* NAVIGATION */}
-
         <nav className="ca-nav">
-
           <span className="ca-nav-label">
             MAIN MENU
           </span>
 
           {menuItems.map((item) => (
-
             <button
               key={item.id}
               className={`ca-nav-item ${
-                activePage === item.id
-                  ? "active"
-                  : ""
+                activePage === item.id ? "active" : ""
               }`}
               onClick={() =>
-                handleNavigation(
-                  item.id
-                )
+                handleNavigation(item.id)
               }
             >
-
               <span className="ca-nav-icon">
                 {item.icon}
               </span>
@@ -238,33 +155,18 @@ export default function ClientAdminLayout() {
                   {item.badge}
                 </span>
               )}
-
             </button>
-
           ))}
-
         </nav>
 
-        {/* SIDEBAR BOTTOM */}
-
         <div className="ca-sidebar-bottom">
-
           <div className="ca-support">
-
-            <div className="ca-support-icon">
-              ?
-            </div>
+            <div className="ca-support-icon">?</div>
 
             <div>
-              <strong>
-                Need help?
-              </strong>
-
-              <span>
-                Contact support
-              </span>
+              <strong>Need help?</strong>
+              <span>Contact support</span>
             </div>
-
           </div>
 
           <button
@@ -275,58 +177,36 @@ export default function ClientAdminLayout() {
               )
             }
           >
-            <span>
-              ⇥
-            </span>
-
+            <span>⇥</span>
             Logout
           </button>
-
         </div>
-
       </aside>
 
-      {/* MAIN AREA */}
-
       <main className="ca-main">
-
-        {/* TOPBAR */}
-
         <header className="ca-topbar">
-
           <div className="ca-topbar-left">
-
             <button
               className="ca-menu-button"
-              onClick={() =>
-                setSidebarOpen(true)
-              }
+              onClick={() => setSidebarOpen(true)}
             >
               ☰
             </button>
 
             <div>
-
               <span className="ca-breadcrumb">
                 Client Admin
               </span>
 
-              <strong>
-                /
-              </strong>
+              <strong>/</strong>
 
               <span>
                 {pageTitles[activePage]}
               </span>
-
             </div>
-
           </div>
 
           <div className="ca-topbar-right">
-
-            {/* PREVIEW */}
-
             <button
               className="ca-preview"
               onClick={() =>
@@ -335,14 +215,9 @@ export default function ClientAdminLayout() {
                 )
               }
             >
-              <span>
-                ◉
-              </span>
-
+              <span>◉</span>
               Preview
             </button>
-
-            {/* NOTIFICATION */}
 
             <button
               className="ca-notification"
@@ -353,61 +228,38 @@ export default function ClientAdminLayout() {
               }
             >
               ♧
-
               <i></i>
             </button>
-
-            {/* PROFILE */}
 
             <button
               className="ca-profile"
               onClick={() =>
-                handleNavigation(
-                  "settings"
-                )
+                handleNavigation("settings")
               }
             >
-
               <span className="ca-profile-avatar">
                 S
               </span>
 
               <span className="ca-profile-info">
-
-                <strong>
-                  Store Owner
-                </strong>
-
-                <small>
-                  Client
-                </small>
-
+                <strong>Store Owner</strong>
+                <small>Client</small>
               </span>
 
               <span className="ca-profile-arrow">
                 ▾
               </span>
-
             </button>
-
           </div>
-
         </header>
-
-        {/* PAGE */}
 
         <div className="ca-content">
           {renderPage()}
         </div>
-
       </main>
-
     </div>
   );
 }
-
-
-/* PLACEHOLDER */
 
 function PlaceholderPage({
   title,
@@ -416,29 +268,20 @@ function PlaceholderPage({
 }) {
   return (
     <div className="ca-placeholder">
-
       <div className="ca-placeholder-icon">
         {icon}
       </div>
 
-      <h2>
-        {title}
-      </h2>
+      <h2>{title}</h2>
 
-      <p>
-        {description}
-      </p>
+      <p>{description}</p>
 
       <span>
         This section is ready for development.
       </span>
-
     </div>
   );
 }
-
-
-/* STYLES */
 
 const styles = `
 .client-admin-shell {
@@ -452,8 +295,6 @@ const styles = `
 .client-admin-shell * {
   box-sizing: border-box;
 }
-
-/* SIDEBAR */
 
 .ca-sidebar {
   width: 238px;
@@ -487,13 +328,11 @@ const styles = `
   color: white;
   font-size: 8px;
   font-weight: 900;
-  letter-spacing: .03em;
 }
 
 .ca-brand strong {
   display: block;
   font-size: 12px;
-  letter-spacing: -.02em;
 }
 
 .ca-brand span {
@@ -513,8 +352,6 @@ const styles = `
   cursor: pointer;
 }
 
-/* STORE */
-
 .ca-store {
   margin: 18px 0;
   padding: 10px;
@@ -529,7 +366,6 @@ const styles = `
 .ca-store-avatar {
   width: 28px;
   height: 28px;
-  flex-shrink: 0;
   display: grid;
   place-items: center;
   border-radius: 6px;
@@ -546,11 +382,8 @@ const styles = `
 
 .ca-store-info strong {
   display: block;
-  overflow: hidden;
   color: #374151;
   font-size: 8px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .ca-store-info span {
@@ -564,8 +397,6 @@ const styles = `
   color: #16a34a;
   font-size: 7px;
 }
-
-/* NAV */
 
 .ca-nav {
   display: flex;
@@ -594,7 +425,6 @@ const styles = `
   color: #6b7280;
   text-align: left;
   cursor: pointer;
-  transition: .15s;
 }
 
 .ca-nav-item:hover {
@@ -629,8 +459,6 @@ const styles = `
   font-size: 6px;
   font-weight: 900;
 }
-
-/* SIDEBAR BOTTOM */
 
 .ca-sidebar-bottom {
   margin-top: auto;
@@ -685,13 +513,6 @@ const styles = `
   cursor: pointer;
 }
 
-.ca-logout:hover {
-  background: #fef2f2;
-  color: #dc2626;
-}
-
-/* MAIN */
-
 .ca-main {
   width: calc(100% - 238px);
   min-height: 100vh;
@@ -704,7 +525,6 @@ const styles = `
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 20px;
   border-bottom: 1px solid #e5e7eb;
   background: white;
 }
@@ -724,10 +544,6 @@ const styles = `
 .ca-topbar-left strong {
   margin: 0 5px;
   color: #d1d5db;
-}
-
-.ca-breadcrumb {
-  color: #9ca3af;
 }
 
 .ca-topbar-left > div > span:last-child {
@@ -825,13 +641,9 @@ const styles = `
   font-size: 8px;
 }
 
-/* CONTENT */
-
 .ca-content {
   min-height: calc(100vh - 64px);
 }
-
-/* PLACEHOLDER */
 
 .ca-placeholder {
   min-height: 500px;
@@ -873,14 +685,7 @@ const styles = `
   font-size: 8px;
 }
 
-/* MOBILE */
-
-.ca-overlay {
-  display: none;
-}
-
 @media (max-width: 800px) {
-
   .ca-sidebar {
     transform: translateX(-100%);
     transition: transform .2s ease;
@@ -919,17 +724,12 @@ const styles = `
 }
 
 @media (max-width: 520px) {
-
   .ca-topbar {
     padding: 0 15px;
   }
 
   .ca-preview {
     display: none;
-  }
-
-  .ca-topbar-right {
-    gap: 5px;
   }
 }
 `;
