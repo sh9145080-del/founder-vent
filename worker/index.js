@@ -16,6 +16,8 @@ export default {
     if (path === "/api/orders" && request.method === "GET") return handleGetOrders(request, env, url);
     if (path === "/api/tracking" && request.method === "POST") return handleSaveTracking(request, env);
     if (path === "/api/tracking" && request.method === "GET") return handleGetTracking(request, env, url);
+    if (path === "/api/upload" && request.method === "POST") return handleImageUpload(request, env);
+    if (path.startsWith("/images/") && request.method === "GET") return handleGetImage(path, env);
 
     return env.ASSETS.fetch(request);
   }
@@ -160,6 +162,40 @@ async function handleGetTracking(request, env, url) {
     return jsonResponse({ success: true, tracking: result || null });
   } catch (err) {
     return jsonResponse({ error: "Server error", details: err.message }, 500);
+  }
+}
+
+async function handleImageUpload(request, env) {
+  try {
+    const formData = await request.formData();
+    const file = formData.get('image');
+    if (!file) return jsonResponse({ error: "কোনো ফাইল পাওয়া যায়নি" }, 400);
+
+    const ext = file.name.split('.').pop();
+    const fileName = "img_" + Date.now() + "." + ext;
+
+    await env.IMAGES.put(fileName, file.stream(), {
+      httpMetadata: { contentType: file.type }
+    });
+
+    const imageUrl = `/images/${fileName}`;
+    return jsonResponse({ success: true, image_url: imageUrl });
+  } catch (err) {
+    return jsonResponse({ error: "Upload failed", details: err.message }, 500);
+  }
+}
+
+async function handleGetImage(path, env) {
+  try {
+    const fileName = path.replace("/images/", "");
+    const object = await env.IMAGES.get(fileName);
+    if (!object) return new Response("Not found", { status: 404 });
+    const headers = new Headers();
+    object.writeHttpMetadata(headers);
+    headers.set('cache-control', 'public, max-age=31536000');
+    return new Response(object.body, { headers });
+  } catch (err) {
+    return new Response("Error", { status: 500 });
   }
 }
 
