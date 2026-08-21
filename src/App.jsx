@@ -26,6 +26,8 @@ const TEMPLATES = [
   { id: 'minimal', name: 'Minimal (হালকা, প্রফেশনাল)' }
 ]
 
+const ORDER_STATUSES = ['pending', 'confirmed', 'shipped', 'delivered', 'cancelled']
+
 function AdminPanel() {
   const [clientName, setClientName] = useState('')
   const [email, setEmail] = useState('')
@@ -73,14 +75,9 @@ function AdminPanel() {
       formData.append('image', file)
       const res = await fetch('/api/upload', { method: 'POST', body: formData })
       const data = await res.json()
-      if (data.success) {
-        setImageUrl(data.image_url)
-      } else {
-        alert('Upload failed: ' + data.error)
-      }
-    } catch (err) {
-      alert('Upload failed')
-    }
+      if (data.success) setImageUrl(data.image_url)
+      else alert('Upload failed: ' + data.error)
+    } catch (err) { alert('Upload failed') }
     setUploading(false)
   }
 
@@ -145,7 +142,10 @@ function AdminPanel() {
       <div style={{ marginTop: '30px', maxWidth: '500px', margin: '30px auto', textAlign: 'left' }}>
         <h3 style={{ textAlign: 'center' }}>সব Client-এর লিস্ট</h3>
         {clients.length === 0 ? <p style={{ textAlign: 'center' }}>কোনো Client নেই এখনো</p> : clients.map((c) => (
-          <div key={c.client_id} style={{ border: '1px solid #eee', padding: '10px', marginBottom: '8px' }}><strong>{c.client_name}</strong> — {c.email}</div>
+          <div key={c.client_id} style={{ border: '1px solid #eee', padding: '10px', marginBottom: '8px' }}>
+            <strong>{c.client_name}</strong> — {c.email}
+            {c.domain && <div style={{ fontSize: '13px', color: '#888' }}>Domain: {c.domain}</div>}
+          </div>
         ))}
       </div>
 
@@ -176,6 +176,9 @@ function ClientLogin() {
   const [tiktokPixel, setTiktokPixel] = useState('')
   const [trackingMsg, setTrackingMsg] = useState('')
 
+  const [domain, setDomain] = useState('')
+  const [domainMsg, setDomainMsg] = useState('')
+
   const handleLogin = async () => {
     setMessage('Checking...')
     try {
@@ -194,9 +197,7 @@ function ClientLogin() {
     const pagesData = await pagesRes.json()
     if (pagesData.success) setMyPages(pagesData.pages)
 
-    const ordersRes = await fetch(`/api/orders?client_id=${client_id}`)
-    const ordersData = await ordersRes.json()
-    if (ordersData.success) setOrders(ordersData.orders)
+    await refreshOrders(client_id)
 
     const trackingRes = await fetch(`/api/tracking?client_id=${client_id}`)
     const trackingData = await trackingRes.json()
@@ -206,6 +207,22 @@ function ClientLogin() {
       setFbCapi(trackingData.tracking.fb_capi_token || '')
       setTiktokPixel(trackingData.tracking.tiktok_pixel_id || '')
     }
+  }
+
+  const refreshOrders = async (client_id) => {
+    const ordersRes = await fetch(`/api/orders?client_id=${client_id}`)
+    const ordersData = await ordersRes.json()
+    if (ordersData.success) setOrders(ordersData.orders)
+  }
+
+  const handleUpdateStatus = async (order_id, newStatus) => {
+    try {
+      await fetch('/api/orders/status', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ order_id, order_status: newStatus })
+      })
+      refreshOrders(loggedInClient.client_id)
+    } catch (err) {}
   }
 
   const handleSaveTracking = async () => {
@@ -221,6 +238,19 @@ function ClientLogin() {
     } catch (err) { setTrackingMsg('❌ Something went wrong') }
   }
 
+  const handleSaveDomain = async () => {
+    setDomainMsg('Saving...')
+    try {
+      const res = await fetch('/api/domain', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ client_id: loggedInClient.client_id, domain })
+      })
+      const data = await res.json()
+      if (data.success) setDomainMsg('✅ Domain সংরক্ষিত হয়েছে। এডমিনকে জানানো হবে DNS সেটআপের জন্য।')
+      else setDomainMsg(`❌ ${data.error}`)
+    } catch (err) { setDomainMsg('❌ Something went wrong') }
+  }
+
   if (loggedInClient) {
     return (
       <div style={{ padding: '30px', textAlign: 'center' }}>
@@ -228,9 +258,10 @@ function ClientLogin() {
         <p>স্বাগতম, <strong>{loggedInClient.client_name}</strong></p>
 
         <div style={{ marginTop: '20px' }}>
-          <button onClick={() => setTab('pages')} style={{ padding: '8px 16px', marginRight: '8px', fontWeight: tab === 'pages' ? 'bold' : 'normal' }}>Pages</button>
-          <button onClick={() => setTab('orders')} style={{ padding: '8px 16px', marginRight: '8px', fontWeight: tab === 'orders' ? 'bold' : 'normal' }}>Orders</button>
-          <button onClick={() => setTab('tracking')} style={{ padding: '8px 16px', fontWeight: tab === 'tracking' ? 'bold' : 'normal' }}>Tracking Settings</button>
+          <button onClick={() => setTab('pages')} style={{ padding: '8px 14px', marginRight: '6px', fontWeight: tab === 'pages' ? 'bold' : 'normal' }}>Pages</button>
+          <button onClick={() => setTab('orders')} style={{ padding: '8px 14px', marginRight: '6px', fontWeight: tab === 'orders' ? 'bold' : 'normal' }}>Orders</button>
+          <button onClick={() => setTab('tracking')} style={{ padding: '8px 14px', marginRight: '6px', fontWeight: tab === 'tracking' ? 'bold' : 'normal' }}>Tracking</button>
+          <button onClick={() => setTab('domain')} style={{ padding: '8px 14px', fontWeight: tab === 'domain' ? 'bold' : 'normal' }}>Domain</button>
         </div>
 
         {tab === 'pages' && (
@@ -251,7 +282,10 @@ function ClientLogin() {
               <div key={o.order_id} style={{ border: '1px solid #eee', padding: '10px', marginBottom: '8px' }}>
                 <strong>{o.customer_name}</strong> — {o.customer_phone}<br />
                 Product: {o.product_name} | Qty: {o.quantity}<br />
-                Status: {o.order_status}
+                <label>Status: </label>
+                <select value={o.order_status} onChange={(e) => handleUpdateStatus(o.order_id, e.target.value)} style={{ padding: '5px' }}>
+                  {ORDER_STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
+                </select>
               </div>
             ))}
           </div>
@@ -270,6 +304,16 @@ function ClientLogin() {
             <input type="text" value={tiktokPixel} onChange={(e) => setTiktokPixel(e.target.value)} style={{ display: 'block', margin: '5px 0 15px', padding: '10px', width: '100%', boxSizing: 'border-box' }} />
             <button onClick={handleSaveTracking} style={{ padding: '10px 30px', width: '100%' }}>Save</button>
             <p style={{ textAlign: 'center' }}>{trackingMsg}</p>
+          </div>
+        )}
+
+        {tab === 'domain' && (
+          <div style={{ marginTop: '30px', border: '1px solid #ccc', padding: '20px', maxWidth: '350px', margin: '30px auto', textAlign: 'left' }}>
+            <h3 style={{ textAlign: 'center' }}>Custom Domain</h3>
+            <label>আপনার Domain (যদি থাকে)</label>
+            <input type="text" placeholder="example.com" value={domain} onChange={(e) => setDomain(e.target.value)} style={{ display: 'block', margin: '5px 0 15px', padding: '10px', width: '100%', boxSizing: 'border-box' }} />
+            <button onClick={handleSaveDomain} style={{ padding: '10px 30px', width: '100%' }}>Save</button>
+            <p style={{ textAlign: 'center' }}>{domainMsg}</p>
           </div>
         )}
 
