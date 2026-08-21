@@ -2,99 +2,138 @@ import React, { useState } from "react";
 
 export default function ProductManager() {
   const [product, setProduct] = useState({
-    brand: "YOUR BRAND",
-    title: "Your Product Name",
-    description:
-      "এখানে আপনার প্রোডাক্টের description লিখুন।",
+    name: "Premium Product",
+    subtitle: "Your product short description",
     price: 1290,
-    oldPrice: 1690,
-    discount: 24,
+    oldPrice: 1590,
+    discount: 19,
+    stock: 25,
+    description:
+      "এখানে আপনার প্রোডাক্টের বিস্তারিত description লিখুন।",
     images: [
-      "https://placehold.co/600x600?text=Product+1",
-      "https://placehold.co/600x600?text=Product+2",
+      "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=900&q=80",
+      "https://images.unsplash.com/photo-1524805444758-089113d48a6d?auto=format&fit=crop&w=900&q=80",
     ],
-    features: [
-      "Premium Quality",
-      "Modern Design",
-      "Easy to Use",
-    ],
+    offerEnabled: true,
+    offerHours: 4,
+    offerMinutes: 35,
   });
 
-  const [newFeature, setNewFeature] =
+  const [activeImage, setActiveImage] =
+    useState(0);
+
+  const [saved, setSaved] =
+    useState(false);
+
+  const [imageUrl, setImageUrl] =
     useState("");
 
-  const updateProduct = (field, value) => {
+  const updateField = (
+    field,
+    value
+  ) => {
     setProduct((prev) => ({
       ...prev,
       [field]: value,
     }));
+
+    setSaved(false);
   };
 
-  const addFeature = () => {
-    if (!newFeature.trim()) return;
+  const addImage = () => {
+    const url = imageUrl.trim();
+
+    if (!url) return;
 
     setProduct((prev) => ({
       ...prev,
-      features: [
-        ...prev.features,
-        newFeature.trim(),
+      images: [
+        ...prev.images,
+        url,
       ],
     }));
 
-    setNewFeature("");
+    setImageUrl("");
+    setSaved(false);
   };
 
-  const removeFeature = (index) => {
-    setProduct((prev) => ({
-      ...prev,
-      features: prev.features.filter(
-        (_, i) => i !== index
-      ),
-    }));
+  const removeImage = (index) => {
+    setProduct((prev) => {
+      const newImages =
+        prev.images.filter(
+          (_, i) => i !== index
+        );
+
+      return {
+        ...prev,
+        images:
+          newImages.length > 0
+            ? newImages
+            : prev.images,
+      };
+    });
+
+    setActiveImage(0);
+    setSaved(false);
   };
 
   const saveProduct = () => {
-    console.log("Product saved:", product);
-    alert("Product information saved successfully!");
+    setSaved(true);
+
+    setTimeout(() => {
+      setSaved(false);
+    }, 2500);
   };
 
   return (
     <div className="product-manager">
       <style>{styles}</style>
 
+      {/* HEADER */}
+
       <div className="pm-header">
+
         <div>
           <span className="pm-kicker">
             PRODUCT MANAGEMENT
           </span>
 
-          <h2>Product Information</h2>
+          <h2>
+            Product Settings
+          </h2>
 
           <p>
-            আপনার landing page-এর
-            product information এখান থেকে
-            নিয়ন্ত্রণ করুন।
+            Landing page-এ যে product
+            information দেখাবে তা এখান
+            থেকে manage করুন।
           </p>
         </div>
 
         <button
-          className="pm-save"
+          className="pm-save-top"
           onClick={saveProduct}
         >
-          ✓ Save Changes
+          {saved
+            ? "✓ Saved"
+            : "Save Changes"}
         </button>
+
       </div>
 
-      <div className="pm-layout">
+      {/* MAIN GRID */}
 
-        {/* LEFT SIDE */}
+      <div className="pm-grid">
 
-        <div className="pm-main">
+        {/* LEFT */}
 
-          {/* BASIC INFORMATION */}
+        <div>
+
+          {/* BASIC INFO */}
 
           <section className="pm-card">
+
             <div className="pm-card-title">
+
               <div>
                 <span>
                   BASIC INFORMATION
@@ -104,53 +143,63 @@ export default function ProductManager() {
                   Product Details
                 </h3>
               </div>
+
             </div>
 
-            <div className="pm-form-grid">
+            <div className="pm-form">
 
-              <div className="pm-field full">
+              <div className="pm-field">
+
                 <label>
-                  Brand Name
+                  Product Name
                 </label>
 
                 <input
-                  value={product.brand}
+                  value={product.name}
                   onChange={(e) =>
-                    updateProduct(
-                      "brand",
-                      e.target.value
-                    )
-                  }
-                  placeholder="Your Brand"
-                />
-              </div>
-
-              <div className="pm-field full">
-                <label>
-                  Product Title
-                </label>
-
-                <input
-                  value={product.title}
-                  onChange={(e) =>
-                    updateProduct(
-                      "title",
+                    updateField(
+                      "name",
                       e.target.value
                     )
                   }
                   placeholder="Product name"
                 />
+
+              </div>
+
+              <div className="pm-field">
+
+                <label>
+                  Short Description
+                </label>
+
+                <input
+                  value={
+                    product.subtitle
+                  }
+                  onChange={(e) =>
+                    updateField(
+                      "subtitle",
+                      e.target.value
+                    )
+                  }
+                  placeholder="Short product description"
+                />
+
               </div>
 
               <div className="pm-field full">
+
                 <label>
                   Product Description
                 </label>
 
                 <textarea
-                  value={product.description}
+                  value={
+                    product.description
+                  }
                   onChange={(e) =>
-                    updateProduct(
+                    updateField(
                       "description",
                       e.target.value
                     )
@@ -158,167 +207,442 @@ export default function ProductManager() {
                   rows="6"
                   placeholder="Write product description..."
                 />
+
               </div>
 
             </div>
+
           </section>
+
 
           {/* PRICING */}
 
           <section className="pm-card">
 
             <div className="pm-card-title">
+
               <div>
                 <span>
                   PRICING
                 </span>
 
                 <h3>
-                  Product Pricing
+                  Price & Discount
                 </h3>
               </div>
+
             </div>
 
-            <div className="pm-form-grid">
+            <div className="pm-pricing-grid">
 
               <div className="pm-field">
+
                 <label>
                   Current Price (৳)
                 </label>
 
                 <input
                   type="number"
-                  value={product.price}
+                  value={
+                    product.price
+                  }
                   onChange={(e) =>
-                    updateProduct(
+                    updateField(
                       "price",
-                      Number(e.target.value)
+                      Number(
+                        e.target.value
+                      )
                     )
                   }
                 />
+
               </div>
 
               <div className="pm-field">
+
                 <label>
                   Old Price (৳)
                 </label>
 
                 <input
                   type="number"
-                  value={product.oldPrice}
+                  value={
+                    product.oldPrice
+                  }
                   onChange={(e) =>
-                    updateProduct(
+                    updateField(
                       "oldPrice",
-                      Number(e.target.value)
+                      Number(
+                        e.target.value
+                      )
                     )
                   }
                 />
+
               </div>
 
               <div className="pm-field">
+
                 <label>
                   Discount (%)
                 </label>
 
                 <input
                   type="number"
-                  value={product.discount}
+                  value={
+                    product.discount
+                  }
                   onChange={(e) =>
-                    updateProduct(
+                    updateField(
                       "discount",
-                      Number(e.target.value)
+                      Number(
+                        e.target.value
+                      )
                     )
                   }
                 />
+
               </div>
 
-            </div>
+              <div className="pm-field">
 
-            <div className="pm-price-preview">
-              <span>
-                Customer sees:
-              </span>
+                <label>
+                  Stock Quantity
+                </label>
 
-              <strong>
-                ৳{product.price}
-              </strong>
+                <input
+                  type="number"
+                  value={
+                    product.stock
+                  }
+                  onChange={(e) =>
+                    updateField(
+                      "stock",
+                      Number(
+                        e.target.value
+                      )
+                    )
+                  }
+                />
 
-              <del>
-                ৳{product.oldPrice}
-              </del>
+              </div>
 
-              <b>
-                {product.discount}% OFF
-              </b>
             </div>
 
           </section>
 
-          {/* FEATURES */}
+
+          {/* OFFER */}
 
           <section className="pm-card">
 
             <div className="pm-card-title">
+
               <div>
                 <span>
-                  PRODUCT FEATURES
+                  OFFER COUNTDOWN
                 </span>
 
                 <h3>
-                  Features
+                  Limited Time Offer
                 </h3>
               </div>
+
+              <label className="pm-switch">
+
+                <input
+                  type="checkbox"
+                  checked={
+                    product.offerEnabled
+                  }
+                  onChange={(e) =>
+                    updateField(
+                      "offerEnabled",
+                      e.target.checked
+                    )
+                  }
+                />
+
+                <span></span>
+
+              </label>
+
             </div>
 
-            <div className="pm-feature-list">
+            {product.offerEnabled && (
+              <div className="pm-countdown">
 
-              {product.features.map(
-                (feature, index) => (
+                <div className="pm-field">
+
+                  <label>
+                    Hours
+                  </label>
+
+                  <input
+                    type="number"
+                    min="0"
+                    value={
+                      product.offerHours
+                    }
+                    onChange={(e) =>
+                      updateField(
+                        "offerHours",
+                        Number(
+                          e.target.value
+                        )
+                      )
+                    }
+                  />
+
+                </div>
+
+                <div className="pm-count-separator">
+                  :
+                </div>
+
+                <div className="pm-field">
+
+                  <label>
+                    Minutes
+                  </label>
+
+                  <input
+                    type="number"
+                    min="0"
+                    max="59"
+                    value={
+                      product.offerMinutes
+                    }
+                    onChange={(e) =>
+                      updateField(
+                        "offerMinutes",
+                        Number(
+                          e.target.value
+                        )
+                      )
+                    }
+                  />
+
+                </div>
+
+                <div className="pm-offer-note">
+                  Landing page-এ
+                  countdown timer দেখানো হবে।
+                </div>
+
+              </div>
+            )}
+
+          </section>
+
+        </div>
+
+
+        {/* RIGHT */}
+
+        <div>
+
+          {/* IMAGE MANAGER */}
+
+          <section className="pm-card">
+
+            <div className="pm-card-title">
+
+              <div>
+                <span>
+                  PRODUCT IMAGES
+                </span>
+
+                <h3>
+                  Image Gallery
+                </h3>
+              </div>
+
+              <small>
+                {product.images.length} images
+              </small>
+
+            </div>
+
+            {/* MAIN IMAGE */}
+
+            <div className="pm-main-image">
+
+              <img
+                src={
+                  product.images[
+                    activeImage
+                  ]
+                }
+                alt="Product"
+              />
+
+              <span className="pm-image-count">
+                {activeImage + 1} /{" "}
+                {product.images.length}
+              </span>
+
+            </div>
+
+            {/* THUMBNAILS */}
+
+            <div className="pm-thumbnails">
+
+              {product.images.map(
+                (image, index) => (
                   <div
-                    className="pm-feature"
                     key={index}
+                    className={`pm-thumb ${
+                      activeImage === index
+                        ? "active"
+                        : ""
+                    }`}
+                    onClick={() =>
+                      setActiveImage(
+                        index
+                      )
+                    }
                   >
-                    <span>✓</span>
 
-                    <strong>
-                      {feature}
-                    </strong>
+                    <img
+                      src={image}
+                      alt={`Product ${
+                        index + 1
+                      }`}
+                    />
 
                     <button
-                      onClick={() =>
-                        removeFeature(index)
-                      }
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        removeImage(
+                          index
+                        );
+                      }}
                     >
                       ×
                     </button>
+
                   </div>
                 )
               )}
 
             </div>
 
-            <div className="pm-add-feature">
+            {/* ADD IMAGE */}
+
+            <div className="pm-add-image">
 
               <input
-                value={newFeature}
+                value={imageUrl}
                 onChange={(e) =>
-                  setNewFeature(
+                  setImageUrl(
                     e.target.value
                   )
                 }
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    addFeature();
-                  }
-                }}
-                placeholder="Add a new feature..."
+                placeholder="Paste image URL..."
               />
 
               <button
-                onClick={addFeature}
+                type="button"
+                onClick={addImage}
               >
                 + Add
               </button>
+
+            </div>
+
+            <p className="pm-image-help">
+              একাধিক image ব্যবহার করা যাবে।
+              Landing page-এ customer swipe
+              করে image দেখতে পারবে।
+            </p>
+
+          </section>
+
+
+          {/* LIVE PREVIEW */}
+
+          <section className="pm-card">
+
+            <div className="pm-card-title">
+
+              <div>
+                <span>
+                  LIVE PREVIEW
+                </span>
+
+                <h3>
+                  Product Preview
+                </h3>
+              </div>
+
+            </div>
+
+            <div className="pm-preview">
+
+              <div className="pm-preview-image">
+
+                <img
+                  src={
+                    product.images[
+                      activeImage
+                    ]
+                  }
+                  alt="Preview"
+                />
+
+              </div>
+
+              <div className="pm-preview-content">
+
+                <h4>
+                  {product.name}
+                </h4>
+
+                <p>
+                  {product.subtitle}
+                </p>
+
+                <div className="pm-preview-price">
+
+                  <strong>
+                    ৳
+                    {Number(
+                      product.price
+                    ).toLocaleString()}
+                  </strong>
+
+                  <del>
+                    ৳
+                    {Number(
+                      product.oldPrice
+                    ).toLocaleString()}
+                  </del>
+
+                  <span>
+                    {product.discount}%
+                    OFF
+                  </span>
+
+                </div>
+
+                {product.offerEnabled && (
+                  <div className="pm-mini-countdown">
+                    Offer ends in{" "}
+                    <strong>
+                      {String(
+                        product.offerHours
+                      ).padStart(2, "0")}
+                      :
+                      {String(
+                        product.offerMinutes
+                      ).padStart(2, "0")}
+                    </strong>
+                  </div>
+                )}
+
+              </div>
 
             </div>
 
@@ -326,116 +650,36 @@ export default function ProductManager() {
 
         </div>
 
-        {/* RIGHT SIDE */}
+      </div>
 
-        <aside className="pm-side">
+      {/* BOTTOM SAVE */}
 
-          {/* IMAGE MANAGER */}
+      <div className="pm-bottom-bar">
 
-          <section className="pm-card">
+        <div>
+          <strong>
+            Product changes
+          </strong>
 
-            <div className="pm-card-title">
-              <div>
-                <span>
-                  PRODUCT MEDIA
-                </span>
+          <span>
+            Save your changes before leaving this page.
+          </span>
+        </div>
 
-                <h3>
-                  Product Images
-                </h3>
-              </div>
-            </div>
-
-            <div className="pm-image-grid">
-
-              {product.images.map(
-                (image, index) => (
-                  <div
-                    className="pm-image-box"
-                    key={index}
-                  >
-                    <img
-                      src={image}
-                      alt={`Product ${index + 1}`}
-                    />
-
-                    <span>
-                      Image {index + 1}
-                    </span>
-                  </div>
-                )
-              )}
-
-            </div>
-
-            <button className="pm-upload">
-              + Add Product Image
-            </button>
-
-            <p className="pm-help">
-              Multiple images can be used
-              in the landing page slider.
-            </p>
-
-          </section>
-
-          {/* LIVE PREVIEW */}
-
-          <section className="pm-card">
-
-            <div className="pm-card-title">
-              <div>
-                <span>
-                  PREVIEW
-                </span>
-
-                <h3>
-                  Product Preview
-                </h3>
-              </div>
-            </div>
-
-            <div className="pm-preview">
-
-              <div className="pm-preview-image">
-                <img
-                  src={product.images[0]}
-                  alt="Product"
-                />
-              </div>
-
-              <span className="pm-preview-brand">
-                {product.brand}
-              </span>
-
-              <h4>
-                {product.title}
-              </h4>
-
-              <div className="pm-preview-price">
-                <strong>
-                  ৳{product.price}
-                </strong>
-
-                <del>
-                  ৳{product.oldPrice}
-                </del>
-
-                <span>
-                  {product.discount}% OFF
-                </span>
-              </div>
-
-            </div>
-
-          </section>
-
-        </aside>
+        <button
+          onClick={saveProduct}
+        >
+          {saved
+            ? "✓ Changes Saved"
+            : "Save Product"}
+        </button>
 
       </div>
+
     </div>
   );
 }
+
 
 const styles = `
 .product-manager {
@@ -455,7 +699,7 @@ const styles = `
   align-items: flex-end;
   justify-content: space-between;
   gap: 20px;
-  margin-bottom: 25px;
+  margin-bottom: 22px;
 }
 
 .pm-kicker {
@@ -477,44 +721,39 @@ const styles = `
   font-size: 12px;
 }
 
-.pm-save {
+.pm-save-top,
+.pm-bottom-bar button {
+  padding: 10px 15px;
   border: 0;
-  border-radius: 7px;
-  background: #2563eb;
+  border-radius: 6px;
+  background: #111827;
   color: white;
-  padding: 11px 16px;
-  font-size: 10px;
-  font-weight: 900;
+  font-size: 9px;
+  font-weight: 800;
   cursor: pointer;
 }
 
-.pm-save:hover {
-  background: #1d4ed8;
-}
-
-.pm-layout {
+.pm-grid {
   display: grid;
-  grid-template-columns: 1.5fr .8fr;
-  gap: 18px;
-  align-items: start;
-}
-
-.pm-main,
-.pm-side {
-  display: flex;
-  flex-direction: column;
+  grid-template-columns:
+    1.25fr .9fr;
   gap: 18px;
 }
 
 .pm-card {
-  background: white;
+  margin-bottom: 18px;
+  padding: 20px;
   border: 1px solid #e5e7eb;
   border-radius: 11px;
-  padding: 22px;
+  background: white;
 }
 
 .pm-card-title {
-  margin-bottom: 20px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 15px;
+  margin-bottom: 18px;
 }
 
 .pm-card-title span {
@@ -526,13 +765,19 @@ const styles = `
 
 .pm-card-title h3 {
   margin: 5px 0 0;
-  font-size: 17px;
+  font-size: 16px;
 }
 
-.pm-form-grid {
+.pm-card-title small {
+  color: #9ca3af;
+  font-size: 8px;
+}
+
+.pm-form {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 15px;
+  grid-template-columns:
+    1fr 1fr;
+  gap: 13px;
 }
 
 .pm-field {
@@ -546,214 +791,241 @@ const styles = `
 }
 
 .pm-field label {
-  color: #374151;
-  font-size: 10px;
+  color: #6b7280;
+  font-size: 8px;
   font-weight: 800;
 }
 
 .pm-field input,
 .pm-field textarea,
-.pm-add-feature input {
+.pm-add-image input {
   width: 100%;
-  padding: 11px 12px;
+  padding: 10px 11px;
   border: 1px solid #dfe3e8;
   border-radius: 6px;
+  outline: none;
   background: white;
   color: #111827;
-  outline: none;
-  font-size: 11px;
   font-family: inherit;
+  font-size: 9px;
   resize: vertical;
 }
 
 .pm-field input:focus,
 .pm-field textarea:focus,
-.pm-add-feature input:focus {
-  border-color: #2563eb;
+.pm-add-image input:focus {
+  border-color: #93c5fd;
 }
 
-.pm-price-preview {
-  margin-top: 17px;
-  padding: 13px;
-  border-radius: 7px;
-  background: #f8fafc;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.pm-price-preview span {
-  color: #6b7280;
-  font-size: 9px;
-}
-
-.pm-price-preview strong {
-  font-size: 18px;
-}
-
-.pm-price-preview del {
-  color: #9ca3af;
-  font-size: 11px;
-}
-
-.pm-price-preview b {
-  padding: 4px 7px;
-  border-radius: 4px;
-  background: #fee2e2;
-  color: #dc2626;
-  font-size: 8px;
-}
-
-.pm-feature-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.pm-feature {
-  min-height: 40px;
-  padding: 8px 10px;
-  border: 1px solid #e5e7eb;
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  gap: 9px;
-}
-
-.pm-feature > span {
-  width: 22px;
-  height: 22px;
+.pm-pricing-grid {
   display: grid;
-  place-items: center;
-  border-radius: 50%;
-  background: #dcfce7;
-  color: #16a34a;
-  font-size: 10px;
-  font-weight: 900;
+  grid-template-columns:
+    1fr 1fr;
+  gap: 13px;
 }
 
-.pm-feature strong {
-  flex: 1;
-  font-size: 10px;
-}
+/* OFFER */
 
-.pm-feature button {
-  width: 24px;
-  height: 24px;
-  border: 0;
-  border-radius: 5px;
-  background: #fef2f2;
-  color: #dc2626;
-  cursor: pointer;
-  font-size: 15px;
-}
-
-.pm-add-feature {
-  display: flex;
-  gap: 8px;
-  margin-top: 12px;
-}
-
-.pm-add-feature button {
-  flex-shrink: 0;
-  padding: 0 14px;
-  border: 1px solid #2563eb;
-  border-radius: 6px;
-  background: #eff6ff;
-  color: #2563eb;
-  font-size: 10px;
-  font-weight: 900;
-  cursor: pointer;
-}
-
-.pm-image-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 9px;
-}
-
-.pm-image-box {
+.pm-switch {
   position: relative;
-  aspect-ratio: 1;
-  overflow: hidden;
-  border-radius: 7px;
-  background: #f3f4f6;
-  border: 1px solid #e5e7eb;
-}
-
-.pm-image-box img {
-  width: 100%;
-  height: 100%;
-  display: block;
-  object-fit: cover;
-}
-
-.pm-image-box span {
-  position: absolute;
-  left: 7px;
-  bottom: 7px;
-  padding: 4px 6px;
-  border-radius: 4px;
-  background: rgba(17, 24, 39, .75);
-  color: white;
-  font-size: 7px;
-  font-weight: 800;
-}
-
-.pm-upload {
-  width: 100%;
-  margin-top: 10px;
-  padding: 10px;
-  border: 1px dashed #cbd5e1;
-  border-radius: 6px;
-  background: #f8fafc;
-  color: #2563eb;
-  font-size: 10px;
-  font-weight: 800;
+  width: 35px;
+  height: 19px;
   cursor: pointer;
 }
 
-.pm-help {
-  margin: 9px 0 0;
+.pm-switch input {
+  display: none;
+}
+
+.pm-switch span {
+  position: absolute;
+  inset: 0;
+  border-radius: 20px;
+  background: #d1d5db;
+  transition: .2s;
+}
+
+.pm-switch span:before {
+  content: "";
+  position: absolute;
+  width: 13px;
+  height: 13px;
+  left: 3px;
+  top: 3px;
+  border-radius: 50%;
+  background: white;
+  transition: .2s;
+}
+
+.pm-switch input:checked + span {
+  background: #111827;
+}
+
+.pm-switch input:checked + span:before {
+  transform: translateX(16px);
+}
+
+.pm-countdown {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.pm-countdown .pm-field {
+  width: 90px;
+}
+
+.pm-count-separator {
+  padding-bottom: 9px;
   color: #9ca3af;
-  text-align: center;
-  font-size: 9px;
+  font-weight: 900;
+}
+
+.pm-offer-note {
+  flex: 1;
+  padding: 9px;
+  border-radius: 6px;
+  background: #f8fafc;
+  color: #6b7280;
+  font-size: 8px;
   line-height: 1.5;
 }
 
+/* IMAGE */
+
+.pm-main-image {
+  height: 280px;
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px;
+  background: #f3f4f6;
+}
+
+.pm-main-image img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: contain;
+}
+
+.pm-image-count {
+  position: absolute;
+  right: 9px;
+  bottom: 9px;
+  padding: 5px 7px;
+  border-radius: 5px;
+  background: rgba(17,24,39,.75);
+  color: white;
+  font-size: 7px;
+}
+
+.pm-thumbnails {
+  margin: 10px 0;
+  display: flex;
+  gap: 7px;
+  overflow-x: auto;
+}
+
+.pm-thumb {
+  width: 54px;
+  height: 54px;
+  flex: 0 0 54px;
+  position: relative;
+  overflow: hidden;
+  border: 2px solid transparent;
+  border-radius: 6px;
+  background: #f3f4f6;
+  cursor: pointer;
+}
+
+.pm-thumb.active {
+  border-color: #111827;
+}
+
+.pm-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.pm-thumb button {
+  width: 16px;
+  height: 16px;
+  position: absolute;
+  right: 2px;
+  top: 2px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(17,24,39,.75);
+  color: white;
+  font-size: 11px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.pm-add-image {
+  display: flex;
+  gap: 6px;
+}
+
+.pm-add-image input {
+  flex: 1;
+}
+
+.pm-add-image button {
+  padding: 0 11px;
+  border: 1px solid #dfe3e8;
+  border-radius: 6px;
+  background: white;
+  color: #111827;
+  font-size: 8px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.pm-image-help {
+  margin: 8px 0 0;
+  color: #9ca3af;
+  font-size: 7px;
+  line-height: 1.5;
+}
+
+/* PREVIEW */
+
 .pm-preview {
-  padding: 13px;
+  overflow: hidden;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
+  background: white;
 }
 
 .pm-preview-image {
-  width: 100%;
-  aspect-ratio: 1;
-  overflow: hidden;
-  border-radius: 6px;
-  background: #f3f4f6;
+  height: 190px;
+  background: #f8fafc;
 }
 
 .pm-preview-image img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
 }
 
-.pm-preview-brand {
-  display: block;
-  margin-top: 12px;
-  color: #2563eb;
+.pm-preview-content {
+  padding: 14px;
+}
+
+.pm-preview-content h4 {
+  margin: 0;
+  font-size: 13px;
+}
+
+.pm-preview-content p {
+  margin: 5px 0 10px;
+  color: #9ca3af;
   font-size: 8px;
-  font-weight: 900;
-  text-transform: uppercase;
-}
-
-.pm-preview h4 {
-  margin: 5px 0 9px;
-  font-size: 14px;
 }
 
 .pm-preview-price {
@@ -763,16 +1035,16 @@ const styles = `
 }
 
 .pm-preview-price strong {
-  font-size: 18px;
+  font-size: 15px;
 }
 
 .pm-preview-price del {
   color: #9ca3af;
-  font-size: 10px;
+  font-size: 8px;
 }
 
 .pm-preview-price span {
-  padding: 4px 6px;
+  padding: 4px 5px;
   border-radius: 4px;
   background: #fee2e2;
   color: #dc2626;
@@ -780,8 +1052,52 @@ const styles = `
   font-weight: 900;
 }
 
-@media (max-width: 850px) {
-  .pm-layout {
+.pm-mini-countdown {
+  margin-top: 10px;
+  padding: 7px;
+  border-radius: 5px;
+  background: #111827;
+  color: white;
+  text-align: center;
+  font-size: 7px;
+}
+
+.pm-mini-countdown strong {
+  margin-left: 4px;
+}
+
+/* BOTTOM */
+
+.pm-bottom-bar {
+  position: sticky;
+  bottom: 15px;
+  z-index: 10;
+  padding: 12px 15px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  border: 1px solid #e5e7eb;
+  border-radius: 9px;
+  background: rgba(255,255,255,.94);
+  box-shadow: 0 8px 30px rgba(17,24,39,.07);
+  backdrop-filter: blur(10px);
+}
+
+.pm-bottom-bar strong {
+  display: block;
+  font-size: 9px;
+}
+
+.pm-bottom-bar span {
+  display: block;
+  margin-top: 3px;
+  color: #9ca3af;
+  font-size: 7px;
+}
+
+@media (max-width: 900px) {
+  .pm-grid {
     grid-template-columns: 1fr;
   }
 }
@@ -796,12 +1112,32 @@ const styles = `
     flex-direction: column;
   }
 
-  .pm-form-grid {
+  .pm-form,
+  .pm-pricing-grid {
     grid-template-columns: 1fr;
   }
 
   .pm-field.full {
     grid-column: auto;
+  }
+
+  .pm-countdown {
+    align-items: stretch;
+    flex-wrap: wrap;
+  }
+
+  .pm-countdown .pm-field {
+    width: calc(50% - 12px);
+  }
+
+  .pm-offer-note {
+    width: 100%;
+    flex-basis: 100%;
+  }
+
+  .pm-bottom-bar {
+    align-items: stretch;
+    flex-direction: column;
   }
 }
 `;
