@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 
-import AdminPanel from "./Admin Panel.jsx";
-import ClientManager from "./ClientManager.jsx";
-import ClientAdminLayout from "./ClientAdminLayout.jsx";
+import AdminPanel from "./admin/Admin Panel.jsx";
+import ClientManager from "./admin/ClientManager.jsx";
+import ClientAdminLayout from "./admin/ClientAdminLayout.jsx";
 
 function App() {
   const [screen, setScreen] = useState("admin-login");
@@ -40,7 +40,7 @@ function App() {
     );
   }
 
-  // CLIENT ADMIN PANEL
+  // CLIENT ADMIN
   if (screen === "client" && clientLoggedIn) {
     return (
       <ClientAdminLayout
@@ -52,7 +52,7 @@ function App() {
     );
   }
 
-  // MAIN ADMIN PANEL
+  // MAIN ADMIN
   if (screen === "admin" && adminLoggedIn) {
     return (
       <MainAdmin
@@ -75,7 +75,7 @@ function App() {
 function MainAdmin({ onLogout }) {
   const [page, setPage] = useState("dashboard");
 
-  // DASHBOARD
+  // MAIN DASHBOARD
   if (page === "dashboard") {
     return (
       <AdminPanel
@@ -488,7 +488,7 @@ function LoginField({
 
 
 // ==========================================
-// LOGIN BUTTON STYLES
+// BUTTON STYLES
 // ==========================================
 
 const loginButtonStyle = {
