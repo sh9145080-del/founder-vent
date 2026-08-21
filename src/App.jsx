@@ -4302,11 +4302,10 @@ const storyStyles = {
     marginBottom: 8,
   },
 
-  feature h3: {
-    fontSize: 19,
-  },
-
-  feature p: {
+  "feature h3": {
+  fontSize: 19,
+},
+"feature p": {
     color: '#697a73',
     lineHeight: 1.7,
     fontSize: 13,
