@@ -14,10 +14,12 @@ export default {
     }
     if (path === "/api/orders" && request.method === "POST") return handleCreateOrder(request, env);
     if (path === "/api/orders" && request.method === "GET") return handleGetOrders(request, env, url);
+    if (path === "/api/orders/status" && request.method === "POST") return handleUpdateOrderStatus(request, env);
     if (path === "/api/tracking" && request.method === "POST") return handleSaveTracking(request, env);
     if (path === "/api/tracking" && request.method === "GET") return handleGetTracking(request, env, url);
     if (path === "/api/upload" && request.method === "POST") return handleImageUpload(request, env);
     if (path.startsWith("/images/") && request.method === "GET") return handleGetImage(path, env);
+    if (path === "/api/domain" && request.method === "POST") return handleSaveDomain(request, env);
 
     return env.ASSETS.fetch(request);
   }
@@ -55,7 +57,7 @@ async function handleCreateClient(request, env) {
 
 async function handleGetClients(env) {
   try {
-    const result = await env.DB.prepare("SELECT client_id, client_name, email, created_at FROM clients ORDER BY created_at DESC").all();
+    const result = await env.DB.prepare("SELECT client_id, client_name, email, domain, created_at FROM clients ORDER BY created_at DESC").all();
     return jsonResponse({ success: true, clients: result.results });
   } catch (err) {
     return jsonResponse({ error: "Server error", details: err.message }, 500);
@@ -132,6 +134,17 @@ async function handleGetOrders(request, env, url) {
   }
 }
 
+async function handleUpdateOrderStatus(request, env) {
+  try {
+    const { order_id, order_status } = await request.json();
+    if (!order_id || !order_status) return jsonResponse({ error: "order_id ও status প্রয়োজন" }, 400);
+    await env.DB.prepare("UPDATE orders SET order_status = ? WHERE order_id = ?").bind(order_status, order_id).run();
+    return jsonResponse({ success: true });
+  } catch (err) {
+    return jsonResponse({ error: "Server error", details: err.message }, 500);
+  }
+}
+
 async function handleSaveTracking(request, env) {
   try {
     const { client_id, meta_pixel_id, ga4_id, fb_capi_token, tiktok_pixel_id } = await request.json();
@@ -170,14 +183,9 @@ async function handleImageUpload(request, env) {
     const formData = await request.formData();
     const file = formData.get('image');
     if (!file) return jsonResponse({ error: "কোনো ফাইল পাওয়া যায়নি" }, 400);
-
     const ext = file.name.split('.').pop();
     const fileName = "img_" + Date.now() + "." + ext;
-
-    await env.IMAGES.put(fileName, file.stream(), {
-      httpMetadata: { contentType: file.type }
-    });
-
+    await env.IMAGES.put(fileName, file.stream(), { httpMetadata: { contentType: file.type } });
     const imageUrl = `/images/${fileName}`;
     return jsonResponse({ success: true, image_url: imageUrl });
   } catch (err) {
@@ -196,6 +204,17 @@ async function handleGetImage(path, env) {
     return new Response(object.body, { headers });
   } catch (err) {
     return new Response("Error", { status: 500 });
+  }
+}
+
+async function handleSaveDomain(request, env) {
+  try {
+    const { client_id, domain } = await request.json();
+    if (!client_id) return jsonResponse({ error: "client_id প্রয়োজন" }, 400);
+    await env.DB.prepare("UPDATE clients SET domain = ? WHERE client_id = ?").bind(domain || '', client_id).run();
+    return jsonResponse({ success: true });
+  } catch (err) {
+    return jsonResponse({ error: "Server error", details: err.message }, 500);
   }
 }
 
