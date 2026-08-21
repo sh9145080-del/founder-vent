@@ -4937,3 +4937,4 @@ const publicCSS = `
     }
   }
 `
+export default App;
