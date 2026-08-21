@@ -3,16 +3,13 @@ import React, { useState } from "react";
 import AdminPanel from "./admin/AdminPanel.jsx";
 import ClientManager from "./admin/ClientManager.jsx";
 import ClientAdminLayout from "./admin/ClientAdminLayout.jsx";
+import TemplateManager from "./admin/TemplateManager.jsx";
 
 function App() {
   const [screen, setScreen] = useState("admin-login");
 
   const [adminLoggedIn, setAdminLoggedIn] = useState(false);
   const [clientLoggedIn, setClientLoggedIn] = useState(false);
-
-  // ==========================================
-  // MAIN ADMIN LOGIN
-  // ==========================================
 
   if (screen === "admin-login") {
     return (
@@ -28,10 +25,6 @@ function App() {
     );
   }
 
-  // ==========================================
-  // CLIENT LOGIN
-  // ==========================================
-
   if (screen === "client-login") {
     return (
       <ClientLogin
@@ -46,10 +39,6 @@ function App() {
     );
   }
 
-  // ==========================================
-  // CLIENT ADMIN PANEL
-  // ==========================================
-
   if (screen === "client" && clientLoggedIn) {
     return (
       <ClientAdminLayout
@@ -60,10 +49,6 @@ function App() {
       />
     );
   }
-
-  // ==========================================
-  // MAIN ADMIN PANEL
-  // ==========================================
 
   if (screen === "admin" && adminLoggedIn) {
     return (
@@ -81,13 +66,12 @@ function App() {
 
 
 // ==========================================
-// MAIN ADMIN CONTROLLER
+// MAIN ADMIN
 // ==========================================
 
 function MainAdmin({ onLogout }) {
   const [page, setPage] = useState("dashboard");
 
-  // DASHBOARD
   if (page === "dashboard") {
     return (
       <AdminPanel
@@ -97,15 +81,9 @@ function MainAdmin({ onLogout }) {
     );
   }
 
-  // CLIENT MANAGER
   if (page === "clients") {
     return (
-      <div
-        style={{
-          minHeight: "100vh",
-          background: "#f5f7fb",
-        }}
-      >
+      <AdminPage>
         <AdminTopBar
           currentPage="Clients"
           onDashboard={() => setPage("dashboard")}
@@ -113,42 +91,63 @@ function MainAdmin({ onLogout }) {
         />
 
         <ClientManager />
-      </div>
+      </AdminPage>
     );
   }
 
-  // FUTURE ADMIN PAGES
+  // TEMPLATE MANAGER
+  if (page === "templates") {
+    return (
+      <AdminPage>
+        <AdminTopBar
+          currentPage="Templates"
+          onDashboard={() => setPage("dashboard")}
+          onLogout={onLogout}
+        />
+
+        <TemplateManager />
+      </AdminPage>
+    );
+  }
+
+  return (
+    <AdminPage>
+      <AdminTopBar
+        currentPage={page}
+        onDashboard={() => setPage("dashboard")}
+        onLogout={onLogout}
+      />
+
+      <div
+        style={{
+          padding: 40,
+          fontFamily: "Inter, Arial, sans-serif",
+        }}
+      >
+        <h2>{page}</h2>
+
+        <p style={{ color: "#6b7280" }}>
+          This section will be connected next.
+        </p>
+      </div>
+    </AdminPage>
+  );
+}
+
+
+// ==========================================
+// ADMIN PAGE
+// ==========================================
+
+function AdminPage({ children }) {
   return (
     <div
       style={{
         minHeight: "100vh",
-        padding: 40,
         background: "#f5f7fb",
-        fontFamily: "Inter, Arial, sans-serif",
       }}
     >
-      <button
-        onClick={() => setPage("dashboard")}
-        style={{
-          padding: "10px 14px",
-          border: 0,
-          borderRadius: 7,
-          background: "#111827",
-          color: "#fff",
-          cursor: "pointer",
-          fontWeight: 700,
-        }}
-      >
-        ← Back to Dashboard
-      </button>
-
-      <h2 style={{ marginTop: 30 }}>
-        {page}
-      </h2>
-
-      <p style={{ color: "#6b7280" }}>
-        This section will be connected in the next step.
-      </p>
+      {children}
     </div>
   );
 }
@@ -271,7 +270,6 @@ function AdminLogin({
       subtitle="Manage your entire landing page platform."
     >
       <form onSubmit={handleSubmit}>
-
         <LoginField
           label="Email"
           type="email"
@@ -302,7 +300,6 @@ function AdminLogin({
         >
           Client Login
         </button>
-
       </form>
     </LoginLayout>
   );
@@ -331,7 +328,6 @@ function ClientLogin({
       subtitle="Access your account and submit edit requests."
     >
       <form onSubmit={handleSubmit}>
-
         <LoginField
           label="Email"
           type="email"
@@ -362,7 +358,6 @@ function ClientLogin({
         >
           ← Back to Main Login
         </button>
-
       </form>
     </LoginLayout>
   );
@@ -403,7 +398,6 @@ function LoginLayout({
             "0 20px 60px rgba(0,0,0,.08)",
         }}
       >
-
         <div
           style={{
             width: 42,
@@ -443,7 +437,6 @@ function LoginLayout({
         </p>
 
         {children}
-
       </div>
     </div>
   );
@@ -463,7 +456,6 @@ function LoginField({
 }) {
   return (
     <div style={{ marginBottom: 13 }}>
-
       <label
         style={{
           display: "block",
@@ -493,7 +485,6 @@ function LoginField({
           fontSize: 9,
         }}
       />
-
     </div>
   );
 }
