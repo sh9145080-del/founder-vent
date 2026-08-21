@@ -1,17 +1,8 @@
-name = "founder-vent"
-compatibility_date = "2026-08-19"
-main = "worker/index.js"
+name = "landingpro-admin"
 
-[assets]
-directory = "./dist"
-binding = "ASSETS"
-not_found_handling = "single-page-application"
+compatibility_date = "2026-08-21"
 
 [[d1_databases]]
 binding = "DB"
-database_name = "founder-vent-db"
-database_id = "424da0fa-4126-45c4-a207-d00434279196"
-
-[[r2_buckets]]
-binding = "IMAGES"
-bucket_name = "founder-vent-images"
+database_name = "landingpro-core"
+database_id = "392fc9b6-7c42-4cce-a05c-cdabf23d7a1d"
