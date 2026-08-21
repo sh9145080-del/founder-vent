@@ -3,6 +3,7 @@ import Dashboard from "./Dashboard";
 import OrderManager from "./OrderManager";
 import ProductManager from "./ProductManager";
 import ReviewManager from "./ReviewManager";
+import EditRequest from "./EditRequest";
 
 export default function ClientAdminLayout() {
   const [activePage, setActivePage] = useState("dashboard");
@@ -13,8 +14,8 @@ export default function ClientAdminLayout() {
     { id: "orders", label: "Orders", icon: "▣", badge: 14 },
     { id: "products", label: "Products", icon: "□" },
     { id: "reviews", label: "Reviews", icon: "☆" },
+    { id: "edit-request", label: "Edit Request", icon: "✎" },
     { id: "payments", label: "Payments", icon: "৳" },
-    { id: "landing", label: "Landing Page", icon: "◈" },
     { id: "settings", label: "Settings", icon: "⚙" },
   ];
 
@@ -23,8 +24,8 @@ export default function ClientAdminLayout() {
     orders: "Orders",
     products: "Products",
     reviews: "Reviews",
+    "edit-request": "Edit Request",
     payments: "Payments",
-    landing: "Landing Page",
     settings: "Settings",
   };
 
@@ -47,21 +48,15 @@ export default function ClientAdminLayout() {
       case "reviews":
         return <ReviewManager />;
 
+      case "edit-request":
+        return <EditRequest />;
+
       case "payments":
         return (
           <PlaceholderPage
             title="Payments"
-            description="Payment settings will be connected here."
+            description="Payment information and settings will be available here."
             icon="৳"
-          />
-        );
-
-      case "landing":
-        return (
-          <PlaceholderPage
-            title="Landing Page"
-            description="Landing page customization will be connected here."
-            icon="◈"
           />
         );
 
@@ -69,7 +64,7 @@ export default function ClientAdminLayout() {
         return (
           <PlaceholderPage
             title="Settings"
-            description="Client account settings will be connected here."
+            description="Your store settings will be available here."
             icon="⚙"
           />
         );
@@ -107,9 +102,7 @@ export default function ClientAdminLayout() {
 
           <button
             className="ca-mobile-close"
-            onClick={() =>
-              setSidebarOpen(false)
-            }
+            onClick={() => setSidebarOpen(false)}
           >
             ×
           </button>
@@ -220,7 +213,7 @@ export default function ClientAdminLayout() {
               className="ca-preview"
               onClick={() =>
                 alert(
-                  "Landing page preview will open here."
+                  "Landing page preview will be available from your main admin system."
                 )
               }
             >
