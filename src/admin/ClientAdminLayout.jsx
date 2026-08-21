@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import Dashboard from "./Dashboard";
 import OrderManager from "./OrderManager";
 import ProductManager from "./ProductManager";
+import ReviewManager from "./ReviewManager";
 
 export default function ClientAdminLayout() {
   const [activePage, setActivePage] = useState("dashboard");
@@ -44,13 +45,7 @@ export default function ClientAdminLayout() {
         return <ProductManager />;
 
       case "reviews":
-        return (
-          <PlaceholderPage
-            title="Reviews"
-            description="Review management will be connected here."
-            icon="☆"
-          />
-        );
+        return <ReviewManager />;
 
       case "payments":
         return (
@@ -101,7 +96,9 @@ export default function ClientAdminLayout() {
         }`}
       >
         <div className="ca-brand">
-          <div className="ca-brand-mark">LP</div>
+          <div className="ca-brand-mark">
+            LP
+          </div>
 
           <div>
             <strong>LandingPro</strong>
@@ -110,21 +107,27 @@ export default function ClientAdminLayout() {
 
           <button
             className="ca-mobile-close"
-            onClick={() => setSidebarOpen(false)}
+            onClick={() =>
+              setSidebarOpen(false)
+            }
           >
             ×
           </button>
         </div>
 
         <div className="ca-store">
-          <div className="ca-store-avatar">S</div>
+          <div className="ca-store-avatar">
+            S
+          </div>
 
           <div className="ca-store-info">
             <strong>Store Name</strong>
             <span>Active Store</span>
           </div>
 
-          <span className="ca-store-dot">●</span>
+          <span className="ca-store-dot">
+            ●
+          </span>
         </div>
 
         <nav className="ca-nav">
@@ -136,7 +139,9 @@ export default function ClientAdminLayout() {
             <button
               key={item.id}
               className={`ca-nav-item ${
-                activePage === item.id ? "active" : ""
+                activePage === item.id
+                  ? "active"
+                  : ""
               }`}
               onClick={() =>
                 handleNavigation(item.id)
@@ -161,7 +166,9 @@ export default function ClientAdminLayout() {
 
         <div className="ca-sidebar-bottom">
           <div className="ca-support">
-            <div className="ca-support-icon">?</div>
+            <div className="ca-support-icon">
+              ?
+            </div>
 
             <div>
               <strong>Need help?</strong>
@@ -188,7 +195,9 @@ export default function ClientAdminLayout() {
           <div className="ca-topbar-left">
             <button
               className="ca-menu-button"
-              onClick={() => setSidebarOpen(true)}
+              onClick={() =>
+                setSidebarOpen(true)
+              }
             >
               ☰
             </button>
