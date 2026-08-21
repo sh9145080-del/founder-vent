@@ -11,3 +11,7 @@ not_found_handling = "single-page-application"
 binding = "DB"
 database_name = "founder-vent-db"
 database_id = "424da0fa-4126-45c4-a207-d00434279196"
+
+[[r2_buckets]]
+binding = "IMAGES"
+bucket_name = "founder-vent-images"
