@@ -39,6 +39,7 @@ function AdminPanel() {
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [imageUrl, setImageUrl] = useState('')
+  const [uploading, setUploading] = useState(false)
   const [price, setPrice] = useState('')
   const [buttonText, setButtonText] = useState('অর্ডার করুন')
   const [templateStyle, setTemplateStyle] = useState('classic')
@@ -61,6 +62,26 @@ function AdminPanel() {
       if (data.success) { setMessage('✅ Client Added Successfully'); setClientName(''); setEmail(''); setPassword(''); loadClients() }
       else setMessage(`❌ ${data.error}`)
     } catch (err) { setMessage('❌ Something went wrong') }
+  }
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0]
+    if (!file) return
+    setUploading(true)
+    try {
+      const formData = new FormData()
+      formData.append('image', file)
+      const res = await fetch('/api/upload', { method: 'POST', body: formData })
+      const data = await res.json()
+      if (data.success) {
+        setImageUrl(data.image_url)
+      } else {
+        alert('Upload failed: ' + data.error)
+      }
+    } catch (err) {
+      alert('Upload failed')
+    }
+    setUploading(false)
   }
 
   const handleCreatePage = async () => {
@@ -109,7 +130,12 @@ function AdminPanel() {
         <input type="text" placeholder="URL Slug (e.g. punching-bag)" value={slug} onChange={(e) => setSlug(e.target.value.toLowerCase().replace(/\s+/g, '-'))} style={{ display: 'block', margin: '10px 0', padding: '10px', width: '100%', boxSizing: 'border-box' }} />
         <input type="text" placeholder="Product Title" value={title} onChange={(e) => setTitle(e.target.value)} style={{ display: 'block', margin: '10px 0', padding: '10px', width: '100%', boxSizing: 'border-box' }} />
         <textarea placeholder="Description" value={description} onChange={(e) => setDescription(e.target.value)} style={{ display: 'block', margin: '10px 0', padding: '10px', width: '100%', boxSizing: 'border-box' }} />
-        <input type="text" placeholder="Image URL" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} style={{ display: 'block', margin: '10px 0', padding: '10px', width: '100%', boxSizing: 'border-box' }} />
+
+        <label>প্রোডাক্ট ছবি:</label>
+        <input type="file" accept="image/*" onChange={handleImageUpload} style={{ display: 'block', margin: '10px 0', width: '100%' }} />
+        {uploading && <p>Uploading...</p>}
+        {imageUrl && <img src={imageUrl} alt="preview" style={{ width: '100%', maxHeight: '150px', objectFit: 'cover', borderRadius: '6px', marginBottom: '10px' }} />}
+
         <input type="text" placeholder="Price (e.g. ৯৯৯ টাকা)" value={price} onChange={(e) => setPrice(e.target.value)} style={{ display: 'block', margin: '10px 0', padding: '10px', width: '100%', boxSizing: 'border-box' }} />
         <input type="text" placeholder="Button Text" value={buttonText} onChange={(e) => setButtonText(e.target.value)} style={{ display: 'block', margin: '10px 0', padding: '10px', width: '100%', boxSizing: 'border-box' }} />
         <button onClick={handleCreatePage} style={{ padding: '10px 30px', marginTop: '10px', width: '100%' }}>Publish Page</button>
