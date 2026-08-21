@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 export default function ClientDetails({
   client,
@@ -9,6 +9,10 @@ export default function ClientDetails({
 
   const [selectedTemplate, setSelectedTemplate] =
     useState("Template 1");
+
+  const [templates, setTemplates] = useState([]);
+  const [templatesLoading, setTemplatesLoading] =
+    useState(true);
 
   const [pageStatus, setPageStatus] =
     useState(
@@ -23,43 +27,24 @@ export default function ClientDetails({
   const [showCreateModal, setShowCreateModal] =
     useState(false);
 
-  const templates = [
-    {
-      id: "Template 1",
-      name: "Classic Commerce",
-      description:
-        "Clean product-focused landing page with reviews, offer and order form.",
-      status: "Available",
-    },
-    {
-      id: "Template 2",
-      name: "Modern Product",
-      description:
-        "Modern visual layout for premium product presentation.",
-      status: "Available",
-    },
-    {
-      id: "Template 3",
-      name: "Minimal Store",
-      description:
-        "Simple, fast and conversion-focused landing page.",
-      status: "Available",
-    },
-    {
-      id: "Template 4",
-      name: "Premium Showcase",
-      description:
-        "Premium presentation for high-value products.",
-      status: "Available",
-    },
-    {
-      id: "Template 5",
-      name: "High Conversion",
-      description:
-        "Strong CTA-focused layout designed for sales.",
-      status: "Available",
-    },
-  ];
+  useEffect(() => {
+    fetch("/api/templates")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          setTemplates(data.templates || []);
+        }
+      })
+      .catch((error) => {
+        console.error(
+          "Failed to load templates:",
+          error
+        );
+      })
+      .finally(() => {
+        setTemplatesLoading(false);
+      });
+  }, []);
 
   const requests = [
     {
@@ -81,7 +66,9 @@ export default function ClientDetails({
   ];
 
   const selectTemplate = (template) => {
-    setSelectedTemplate(template.id);
+    setSelectedTemplate(
+      template.name || template.id
+    );
     setShowTemplateModal(false);
   };
 
@@ -129,8 +116,6 @@ export default function ClientDetails({
     <div className="client-details">
       <style>{styles}</style>
 
-      {/* TOP HEADER */}
-
       <div className="cd-top-header">
 
         <button
@@ -172,8 +157,6 @@ export default function ClientDetails({
         </div>
 
       </div>
-
-      {/* CLIENT HERO */}
 
       <div className="cd-client-card">
 
@@ -232,8 +215,6 @@ export default function ClientDetails({
         </div>
 
       </div>
-
-      {/* TABS */}
 
       <div className="cd-tabs">
 
@@ -294,8 +275,6 @@ export default function ClientDetails({
 
       </div>
 
-      {/* OVERVIEW */}
-
       {activeTab === "overview" && (
         <Overview
           client={client}
@@ -316,8 +295,6 @@ export default function ClientDetails({
         />
       )}
 
-      {/* LANDING PAGE */}
-
       {activeTab === "landing" && (
         <LandingPageManager
           selectedTemplate={selectedTemplate}
@@ -332,23 +309,17 @@ export default function ClientDetails({
         />
       )}
 
-      {/* REQUESTS */}
-
       {activeTab === "requests" && (
         <RequestManager
           requests={requests}
         />
       )}
 
-      {/* SETTINGS */}
-
       {activeTab === "settings" && (
         <ClientSettings
           client={client}
         />
       )}
-
-      {/* TEMPLATE MODAL */}
 
       {showTemplateModal && (
         <div
@@ -389,67 +360,93 @@ export default function ClientDetails({
 
             <div className="cd-template-grid">
 
-              {templates.map(
-                (template) => (
-                  <button
-                    key={template.id}
-                    className={`cd-template-card ${
-                      selectedTemplate ===
-                      template.id
-                        ? "selected"
-                        : ""
-                    }`}
-                    onClick={() =>
-                      selectTemplate(
-                        template
-                      )
-                    }
-                  >
+              {templatesLoading ? (
 
-                    <div className="cd-template-preview">
+                <div className="cd-template-loading">
+                  Loading templates...
+                </div>
 
-                      <div className="tp-header">
-                        <span />
-                        <span />
-                      </div>
+              ) : templates.length === 0 ? (
 
-                      <div className="tp-image" />
+                <div className="cd-template-loading">
+                  No templates available.
+                </div>
 
-                      <div className="tp-line" />
+              ) : (
 
-                      <div className="tp-price" />
+                templates.map(
+                  (template) => {
 
-                      <div className="tp-button" />
+                    const templateKey =
+                      template.name ||
+                      template.id;
 
-                    </div>
+                    return (
+                      <button
+                        key={
+                          template.id ||
+                          templateKey
+                        }
+                        className={`cd-template-card ${
+                          selectedTemplate ===
+                          templateKey
+                            ? "selected"
+                            : ""
+                        }`}
+                        onClick={() =>
+                          selectTemplate(
+                            template
+                          )
+                        }
+                      >
 
-                    <div className="cd-template-info">
+                        <div className="cd-template-preview">
 
-                      <div>
-                        <strong>
-                          {template.name}
-                        </strong>
+                          <div className="tp-header">
+                            <span />
+                            <span />
+                          </div>
 
-                        <span>
-                          {template.id}
-                        </span>
-                      </div>
+                          <div className="tp-image" />
 
-                      {selectedTemplate ===
-                        template.id && (
-                        <div className="cd-selected">
-                          ✓
+                          <div className="tp-line" />
+
+                          <div className="tp-price" />
+
+                          <div className="tp-button" />
+
                         </div>
-                      )}
 
-                    </div>
+                        <div className="cd-template-info">
 
-                    <p>
-                      {template.description}
-                    </p>
+                          <div>
+                            <strong>
+                              {template.name}
+                            </strong>
 
-                  </button>
+                            <span>
+                              {template.id}
+                            </span>
+                          </div>
+
+                          {selectedTemplate ===
+                            templateKey && (
+                            <div className="cd-selected">
+                              ✓
+                            </div>
+                          )}
+
+                        </div>
+
+                        <p>
+                          {template.description}
+                        </p>
+
+                      </button>
+                    );
+                  }
                 )
+
               )}
 
             </div>
@@ -458,8 +455,6 @@ export default function ClientDetails({
 
         </div>
       )}
-
-      {/* CREATE MODAL */}
 
       {showCreateModal && (
         <div
@@ -594,8 +589,6 @@ function Overview({
 
       <div className="cd-grid">
 
-        {/* LANDING PAGE CARD */}
-
         <div className="cd-card cd-page-card">
 
           <div className="cd-card-header">
@@ -612,8 +605,7 @@ function Overview({
 
             <span
               className={`cd-status ${
-                pageStatus
-                  .toLowerCase()
+                pageStatus.toLowerCase()
               }`}
             >
               {pageStatus}
@@ -664,11 +656,9 @@ function Overview({
               </strong>
 
               <p>
-                {pageStatus ===
-                "Draft"
+                {pageStatus === "Draft"
                   ? "Landing page is ready to be configured and published."
-                  : "Landing page is currently live for this client."
-                }
+                  : "Landing page is currently live for this client."}
               </p>
 
               <div className="cd-page-buttons">
@@ -694,8 +684,6 @@ function Overview({
           </div>
 
         </div>
-
-        {/* CLIENT PLAN */}
 
         <div className="cd-card">
 
@@ -750,8 +738,6 @@ function Overview({
           </div>
 
         </div>
-
-        {/* QUICK ACTIONS */}
 
         <div className="cd-card cd-quick">
 
@@ -880,8 +866,7 @@ function LandingPageManager({
             className="cd-primary"
             onClick={onPublish}
           >
-            {pageStatus ===
-            "Published"
+            {pageStatus === "Published"
               ? "Unpublish"
               : "Publish"}
           </button>
@@ -1324,8 +1309,6 @@ const styles = `
   box-sizing: border-box;
 }
 
-/* TOP */
-
 .cd-top-header {
   margin-bottom: 17px;
   display: flex;
@@ -1379,8 +1362,6 @@ const styles = `
   background: #15803d;
 }
 
-/* CLIENT CARD */
-
 .cd-client-card {
   margin-bottom: 17px;
   padding: 18px;
@@ -1421,10 +1402,6 @@ const styles = `
   margin: 0;
   font-size: 18px;
   letter-spacing: -.03em;
-}
-
-.cd-client-title-row p {
-  margin: 5px 0 0;
 }
 
 .cd-client-main p {
@@ -1474,8 +1451,6 @@ const styles = `
   font-size: 8px;
 }
 
-/* TABS */
-
 .cd-tabs {
   margin-bottom: 17px;
   padding: 4px;
@@ -1517,8 +1492,6 @@ const styles = `
   background: rgba(255,255,255,.15);
   color: white;
 }
-
-/* CONTENT */
 
 .cd-content {
   min-height: 400px;
@@ -1573,8 +1546,6 @@ const styles = `
   background: #fef3c7;
   color: #b45309;
 }
-
-/* PAGE BODY */
 
 .cd-page-body {
   padding: 17px;
@@ -1721,8 +1692,6 @@ const styles = `
   color: #4b5563;
 }
 
-/* PLAN */
-
 .cd-plan-body {
   padding: 17px;
 }
@@ -1754,8 +1723,6 @@ const styles = `
   color: #374151;
   font-size: 7px;
 }
-
-/* QUICK */
 
 .cd-quick-grid {
   padding: 12px;
@@ -1804,8 +1771,6 @@ const styles = `
   font-size: 6px;
 }
 
-/* SECTION */
-
 .cd-section-header {
   margin-bottom: 17px;
   display: flex;
@@ -1831,8 +1796,6 @@ const styles = `
   color: #6b7280;
   font-size: 8px;
 }
-
-/* MANAGEMENT */
 
 .cd-management-grid {
   display: grid;
@@ -1866,8 +1829,6 @@ const styles = `
   font-size: 8px;
   line-height: 1.6;
 }
-
-/* CONTROL */
 
 .cd-control-list {
   padding: 8px;
@@ -1922,8 +1883,6 @@ const styles = `
   color: #9ca3af;
   font-size: 10px;
 }
-
-/* REQUEST */
 
 .cd-request-list {
   padding: 10px;
@@ -2020,8 +1979,6 @@ const styles = `
   cursor: pointer;
 }
 
-/* SETTINGS */
-
 .cd-settings-grid {
   padding: 17px;
   display: grid;
@@ -2074,8 +2031,6 @@ const styles = `
   font-size: 7px;
   line-height: 1.6;
 }
-
-/* TEMPLATE MODAL */
 
 .cd-modal-overlay {
   position: fixed;
@@ -2144,6 +2099,14 @@ const styles = `
   grid-template-columns:
     repeat(3, 1fr);
   gap: 10px;
+}
+
+.cd-template-loading {
+  grid-column: 1 / -1;
+  padding: 50px 20px;
+  text-align: center;
+  color: #9ca3af;
+  font-size: 9px;
 }
 
 .cd-template-card {
@@ -2258,8 +2221,6 @@ const styles = `
   line-height: 1.5;
 }
 
-/* CREATE */
-
 .cd-create-content {
   padding: 25px;
   text-align: center;
@@ -2349,8 +2310,6 @@ const styles = `
   color: white;
 }
 
-/* EMPTY */
-
 .cd-empty-page {
   min-height: 500px;
   display: flex;
@@ -2393,8 +2352,6 @@ const styles = `
   font-weight: 800;
   cursor: pointer;
 }
-
-/* RESPONSIVE */
 
 @media (max-width: 900px) {
 
