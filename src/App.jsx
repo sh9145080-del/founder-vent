@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 
-import AdminPanel from "./Admin Panel";
-import ClientManager from "./ClientManager";
-import ClientAdminLayout from "./ClientAdminLayout";
+import AdminPanel from "./Admin Panel.jsx";
+import ClientManager from "./ClientManager.jsx";
+import ClientAdminLayout from "./ClientAdminLayout.jsx";
 
 function App() {
   const [screen, setScreen] = useState("admin-login");
@@ -250,7 +250,6 @@ function AdminLogin({
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
     onLogin();
   };
 
@@ -311,7 +310,6 @@ function ClientLogin({
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
     onLogin();
   };
 
