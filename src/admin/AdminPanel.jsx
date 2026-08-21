@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import ClientManager from "./ClientManager";
+import TemplateManager from "./TemplateManager";
 
 export default function AdminPanel() {
   const [activePage, setActivePage] = useState("dashboard");
@@ -71,6 +72,9 @@ export default function AdminPanel() {
       case "clients":
         return <ClientManager />;
 
+      case "templates":
+        return <TemplateManager />;
+
       case "dashboard":
         return (
           <PlaceholderPage
@@ -86,15 +90,6 @@ export default function AdminPanel() {
             title="Landing Pages"
             description="Manage every client's landing page from one place."
             icon="▣"
-          />
-        );
-
-      case "templates":
-        return (
-          <PlaceholderPage
-            title="Templates"
-            description="Template management will be connected here."
-            icon="▤"
           />
         );
 
@@ -141,10 +136,7 @@ export default function AdminPanel() {
 
   return (
     <div className="main-admin">
-
       <style>{styles}</style>
-
-      {/* MOBILE OVERLAY */}
 
       {sidebarOpen && (
         <div
@@ -153,18 +145,12 @@ export default function AdminPanel() {
         />
       )}
 
-      {/* SIDEBAR */}
-
       <aside
         className={`ma-sidebar ${
           sidebarOpen ? "ma-sidebar-open" : ""
         }`}
       >
-
-        {/* BRAND */}
-
         <div className="ma-brand">
-
           <div className="ma-brand-logo">
             LP
           </div>
@@ -187,19 +173,14 @@ export default function AdminPanel() {
           >
             ×
           </button>
-
         </div>
 
-        {/* ADMIN PROFILE */}
-
         <div className="ma-admin-card">
-
           <div className="ma-admin-avatar">
             A
           </div>
 
           <div className="ma-admin-info">
-
             <strong>
               Super Admin
             </strong>
@@ -207,25 +188,19 @@ export default function AdminPanel() {
             <span>
               Full Access
             </span>
-
           </div>
 
           <span className="ma-online">
             ●
           </span>
-
         </div>
 
-        {/* NAVIGATION */}
-
         <nav className="ma-nav">
-
           <span className="ma-nav-title">
             MANAGEMENT
           </span>
 
           {menuItems.map((item) => (
-
             <button
               key={item.id}
               className={`ma-nav-item ${
@@ -237,7 +212,6 @@ export default function AdminPanel() {
                 navigate(item.id)
               }
             >
-
               <span className="ma-nav-icon">
                 {item.icon}
               </span>
@@ -251,19 +225,12 @@ export default function AdminPanel() {
                   {item.badge}
                 </span>
               )}
-
             </button>
-
           ))}
-
         </nav>
 
-        {/* SIDEBAR BOTTOM */}
-
         <div className="ma-sidebar-bottom">
-
           <div className="ma-system-status">
-
             <span className="ma-system-dot">
               ●
             </span>
@@ -277,7 +244,6 @@ export default function AdminPanel() {
                 All services operational
               </span>
             </div>
-
           </div>
 
           <button
@@ -294,21 +260,12 @@ export default function AdminPanel() {
 
             Logout
           </button>
-
         </div>
-
       </aside>
 
-      {/* MAIN */}
-
       <main className="ma-main">
-
-        {/* TOPBAR */}
-
         <header className="ma-topbar">
-
           <div className="ma-top-left">
-
             <button
               className="ma-menu-button"
               onClick={() =>
@@ -319,7 +276,6 @@ export default function AdminPanel() {
             </button>
 
             <div className="ma-breadcrumb">
-
               <span>
                 Main Admin
               </span>
@@ -331,13 +287,10 @@ export default function AdminPanel() {
               <strong>
                 {pageTitles[activePage]}
               </strong>
-
             </div>
-
           </div>
 
           <div className="ma-top-right">
-
             <button
               className="ma-site-button"
               onClick={() =>
@@ -372,13 +325,11 @@ export default function AdminPanel() {
                 navigate("settings")
               }
             >
-
               <span className="ma-profile-avatar">
                 A
               </span>
 
               <span className="ma-profile-info">
-
                 <strong>
                   Super Admin
                 </strong>
@@ -386,27 +337,19 @@ export default function AdminPanel() {
                 <small>
                   Administrator
                 </small>
-
               </span>
 
               <span className="ma-profile-arrow">
                 ▾
               </span>
-
             </button>
-
           </div>
-
         </header>
-
-        {/* PAGE */}
 
         <div className="ma-content">
           {renderPage()}
         </div>
-
       </main>
-
     </div>
   );
 }
@@ -418,7 +361,6 @@ function PlaceholderPage({
 }) {
   return (
     <div className="ma-placeholder">
-
       <div className="ma-placeholder-icon">
         {icon}
       </div>
@@ -434,7 +376,6 @@ function PlaceholderPage({
       <span>
         This section is ready for development.
       </span>
-
     </div>
   );
 }
@@ -451,8 +392,6 @@ const styles = `
 .main-admin * {
   box-sizing: border-box;
 }
-
-/* SIDEBAR */
 
 .ma-sidebar {
   width: 245px;
@@ -510,8 +449,6 @@ const styles = `
   cursor: pointer;
 }
 
-/* ADMIN CARD */
-
 .ma-admin-card {
   margin: 18px 0;
   padding: 10px;
@@ -555,8 +492,6 @@ const styles = `
   color: #16a34a;
   font-size: 7px;
 }
-
-/* NAV */
 
 .ma-nav {
   display: flex;
@@ -620,8 +555,6 @@ const styles = `
   font-weight: 900;
 }
 
-/* SIDEBAR BOTTOM */
-
 .ma-sidebar-bottom {
   margin-top: auto;
 }
@@ -668,15 +601,11 @@ const styles = `
   cursor: pointer;
 }
 
-/* MAIN */
-
 .ma-main {
   width: calc(100% - 245px);
   min-height: 100vh;
   margin-left: 245px;
 }
-
-/* TOPBAR */
 
 .ma-topbar {
   height: 64px;
@@ -801,13 +730,9 @@ const styles = `
   font-size: 8px;
 }
 
-/* CONTENT */
-
 .ma-content {
   min-height: calc(100vh - 64px);
 }
-
-/* PLACEHOLDER */
 
 .ma-placeholder {
   min-height: 500px;
@@ -849,10 +774,7 @@ const styles = `
   font-size: 8px;
 }
 
-/* MOBILE */
-
 @media (max-width: 800px) {
-
   .ma-sidebar {
     transform: translateX(-100%);
     transition: transform .2s ease;
@@ -890,7 +812,6 @@ const styles = `
 }
 
 @media (max-width: 520px) {
-
   .ma-topbar {
     padding: 0 15px;
   }
@@ -898,6 +819,5 @@ const styles = `
   .ma-site-button {
     display: none;
   }
-
 }
 `;
