@@ -1,0 +1,8 @@
+name = "landingpro-admin"
+
+compatibility_date = "2026-08-21"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "landingpro-core"
+database_id = "392fc9b6-7c42-4cce-a05c-cdabf23d7a1d"

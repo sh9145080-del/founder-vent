@@ -1,0 +1,6 @@
+{
+  "name": "Founder's Vent Platform",
+  "description": "Founder's Vent Platform - Landing Page SaaS Platform with Admin & Client Management",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
